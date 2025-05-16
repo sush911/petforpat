@@ -2,19 +2,18 @@ import 'package:flutter/material.dart';
 
 class CustomDivider extends StatelessWidget {
   final String text;
-
   const CustomDivider({super.key, required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(child: Divider(thickness: 1)),
+        Expanded(child: Divider(color: Colors.grey.shade400)),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(text),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(text, style: TextStyle(color: Colors.grey.shade600)),
         ),
-        const Expanded(child: Divider(thickness: 1)),
+        Expanded(child: Divider(color: Colors.grey.shade400)),
       ],
     );
   }

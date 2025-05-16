@@ -24,10 +24,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Gradient background for vibrant, happy feel
+      // Gradient background with an added soft pattern and shadow effect for depth
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
             colors: [
               Color(0xFFFFA726), // Orange
               Color(0xFFFFCC80), // Light Orange
@@ -35,6 +35,14 @@ class _SplashScreenState extends State<SplashScreen> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.orange.withOpacity(0.3),
+              spreadRadius: 10,
+              blurRadius: 20,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         child: Center(
           child: Column(
@@ -46,6 +54,22 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Image.asset(
                   'assets/logo/pet.jpg', // Make sure this path is correct
                   fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Pet Adoption',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      blurRadius: 8,
+                      color: Colors.black45,
+                      offset: Offset(2, 2),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 20),
