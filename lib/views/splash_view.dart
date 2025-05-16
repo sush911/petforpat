@@ -8,12 +8,26 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeIn;
+
   @override
   void initState() {
     super.initState();
-    // Wait 2 seconds and navigate to LoginView
-    Future.delayed(const Duration(seconds: 2), () {
+
+    // Initialize fade-in animation
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+
+    _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+    _controller.forward();
+
+    // Navigate to LoginView after 3 seconds
+    Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const LoginView()),
@@ -22,59 +36,70 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
-      // Gradient background with an added soft pattern and shadow effect for depth
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
+      body: AnimatedContainer(
+        duration: const Duration(seconds: 3),
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
             colors: [
-              Color(0xFFFFA726), // Orange
-              Color(0xFFFFCC80), // Light Orange
+              Color(0xFFFF7043), // Deeper orange
+              Color(0xFFFFCC80), // Light orange
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.orange.withOpacity(0.3),
-              spreadRadius: 10,
-              blurRadius: 20,
-              offset: const Offset(0, 5),
-            ),
-          ],
         ),
         child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 150,
-                height: 150,
-                child: Image.asset(
-                  'assets/logo/pet.jpg', // Make sure this path is correct
-                  fit: BoxFit.contain,
+          child: FadeTransition(
+            opacity: _fadeIn,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // 🐾 Bigger, responsive logo
+                SizedBox(
+                  width: screenWidth * 0.7,
+                  child: Image.asset(
+                    'assets/logo/pet.jpg',
+                    fit: BoxFit.contain,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Pet Adoption',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 24),
+
+                // 📝 App title
+                const Text(
+                  'Pet Adoption',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    letterSpacing: 1.5,
+                    shadows: [
+                      Shadow(
+                        blurRadius: 10,
+                        color: Colors.black45,
+                        offset: Offset(3, 3),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                // ⏳ Spinner
+                const CircularProgressIndicator(
                   color: Colors.white,
-                  shadows: [
-                    Shadow(
-                      blurRadius: 8,
-                      color: Colors.black45,
-                      offset: Offset(2, 2),
-                    ),
-                  ],
+                  strokeWidth: 4,
                 ),
-              ),
-              const SizedBox(height: 20),
-              const CircularProgressIndicator(color: Colors.white),
-            ],
+              ],
+            ),
           ),
         ),
       ),

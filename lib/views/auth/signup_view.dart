@@ -25,7 +25,7 @@ class _SignUpViewState extends State<SignUpView> {
         child: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF11998E), Color(0xFF38EF7D)], // teal to green gradient
+              colors: [Color(0xFF11998E), Color(0xFF38EF7D)],
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
             ),
@@ -214,7 +214,7 @@ class _SignUpViewState extends State<SignUpView> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Signing up...')),
       );
-      // You can add actual sign-up API call here.
+      //  sign-up API call here.
     }
   }
 }

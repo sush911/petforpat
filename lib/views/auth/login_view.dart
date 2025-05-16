@@ -26,7 +26,7 @@ class _LoginViewState extends State<LoginView> {
         child: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF6A11CB), Color(0xFF2575FC)], // purple to blue gradient
+              colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
