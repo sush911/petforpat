@@ -12,6 +12,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
+    // Wait 2 seconds and navigate to LoginView
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
@@ -23,23 +24,34 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFEFF0), // soft versatile color
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Add a size constraint here
-            SizedBox(
-              width: 150,
-              height: 150,
-              child: Image.asset(
-                'assets/logo/pet.jpg',
-                fit: BoxFit.contain,
+      // Gradient background for vibrant, happy feel
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFFFA726), // Orange
+              Color(0xFFFFCC80), // Light Orange
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 150,
+                height: 150,
+                child: Image.asset(
+                  'assets/logo/pet.jpg', // Make sure this path is correct
+                  fit: BoxFit.contain,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            const CircularProgressIndicator(color: Colors.blueAccent),
-          ],
+              const SizedBox(height: 20),
+              const CircularProgressIndicator(color: Colors.white),
+            ],
+          ),
         ),
       ),
     );

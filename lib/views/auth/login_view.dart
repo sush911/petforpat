@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:petforpat/Widgets/custom_divider.dart';
+import 'package:petforpat/Widgets/social_button.dart';
+
 import '../dashboard_view.dart';
 
 class LoginView extends StatefulWidget {
@@ -9,12 +12,12 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   bool _passwordVisible = false;
   bool _showError = false;
-
-  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -22,34 +25,31 @@ class _LoginViewState extends State<LoginView> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const SizedBox(height: 50),
-              _buildHeader(),
-              const SizedBox(height: 40),
-              _buildUsernameField(),
-              const SizedBox(height: 20),
-              _buildPasswordField(),
-              _buildErrorMessage(),
-              const SizedBox(height: 30),
-              _buildLoginButton(),
-              const SizedBox(height: 30),
-              const CustomDivider(text: 'Or'),
-              const SizedBox(height: 30),
-              _buildSocialLoginButtons(),
-            ],
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 50),
+                const Text(
+                  'Welcome Back',
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 40),
+                _buildUsernameField(),
+                const SizedBox(height: 20),
+                _buildPasswordField(),
+                _buildErrorMessage(),
+                const SizedBox(height: 30),
+                _buildLoginButton(),
+                const SizedBox(height: 30),
+                const CustomDivider(text: 'Or'),
+                const SizedBox(height: 30),
+                _buildSocialLoginButtons(),
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return const Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        'Welcome Back',
-        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
       ),
     );
   }
@@ -61,7 +61,8 @@ class _LoginViewState extends State<LoginView> {
         labelText: 'Username',
         border: OutlineInputBorder(),
       ),
-      validator: (value) => value == null || value.isEmpty ? 'Enter username' : null,
+      validator: (value) =>
+      value == null || value.isEmpty ? 'Enter username' : null,
     );
   }
 
@@ -73,11 +74,14 @@ class _LoginViewState extends State<LoginView> {
         labelText: 'Password',
         border: const OutlineInputBorder(),
         suffixIcon: IconButton(
-          icon: Icon(_passwordVisible ? Icons.visibility : Icons.visibility_off),
+          icon: Icon(
+            _passwordVisible ? Icons.visibility : Icons.visibility_off,
+          ),
           onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
         ),
       ),
-      validator: (value) => value == null || value.isEmpty ? 'Enter password' : null,
+      validator: (value) =>
+      value == null || value.isEmpty ? 'Enter password' : null,
     );
   }
 
@@ -111,10 +115,10 @@ class _LoginViewState extends State<LoginView> {
       children: [
         SocialButton(
           icon: Container(
-            width: 24,
-            height: 24,
+            width: 28,
+            height: 28,
             decoration: BoxDecoration(
-              color: const Color(0xFF1877F2), // Facebook blue
+              color: const Color(0xFF1877F2),
               borderRadius: BorderRadius.circular(4),
             ),
             child: const Center(
@@ -130,23 +134,24 @@ class _LoginViewState extends State<LoginView> {
           ),
           text: 'Sign up with Facebook',
           onPressed: () {
-            // Add your Facebook signup logic here
+            // Facebook signup logic
           },
         ),
         const SizedBox(height: 15),
         SocialButton(
-          icon: const Icon(Icons.g_mobiledata, color: Colors.red),
+          icon: const Icon(Icons.g_mobiledata, color: Colors.red, size: 32),
           text: 'Sign up with Google',
           onPressed: () {
-            // Add your Google signup logic here
+            // Google signup logic
           },
+          isBold: true,
         ),
       ],
     );
   }
 
   void _handleLogin() {
-    final isValid = _formKey.currentState?.validate() ?? true;
+    final isValid = _formKey.currentState?.validate() ?? false;
     if (!isValid) return;
 
     final username = _usernameController.text.trim();
@@ -160,56 +165,5 @@ class _LoginViewState extends State<LoginView> {
     } else {
       setState(() => _showError = true);
     }
-  }
-}
-
-class SocialButton extends StatelessWidget {
-  final Widget icon;
-  final String text;
-  final VoidCallback onPressed;
-
-  const SocialButton({
-    super.key,
-    required this.icon,
-    required this.text,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton(
-      onPressed: onPressed,
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        side: const BorderSide(color: Colors.grey),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          icon,
-          const SizedBox(width: 10),
-          Text(text, style: const TextStyle(color: Colors.black)),
-        ],
-      ),
-    );
-  }
-}
-
-class CustomDivider extends StatelessWidget {
-  final String text;
-  const CustomDivider({super.key, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(child: Divider()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(text),
-        ),
-        const Expanded(child: Divider()),
-      ],
-    );
   }
 }
