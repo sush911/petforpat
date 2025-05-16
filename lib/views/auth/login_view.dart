@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:petforpat/Widgets/custom_divider.dart';
 import 'package:petforpat/Widgets/social_button.dart';
-
-import '../dashboard_view.dart';
+import 'package:petforpat/views/auth/signup_view.dart';
+import 'package:petforpat/views/dashboard_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -22,31 +22,53 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFEFEFF0),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 50),
-                const Text(
-                  'Welcome Back',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: Text(
+                        'Welcome Back',
+                        style: TextStyle(
+                            fontSize: 28, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    _buildUsernameField(),
+                    const SizedBox(height: 20),
+                    _buildPasswordField(),
+                    _buildErrorMessage(),
+                    const SizedBox(height: 30),
+                    _buildLoginButton(),
+                    const SizedBox(height: 12),
+                    _buildSignUpOption(),
+                    const SizedBox(height: 30),
+                    const CustomDivider(text: 'Or'),
+                    const SizedBox(height: 30),
+                    _buildSocialLoginButtons(),
+                  ],
                 ),
-                const SizedBox(height: 40),
-                _buildUsernameField(),
-                const SizedBox(height: 20),
-                _buildPasswordField(),
-                _buildErrorMessage(),
-                const SizedBox(height: 30),
-                _buildLoginButton(),
-                const SizedBox(height: 30),
-                const CustomDivider(text: 'Or'),
-                const SizedBox(height: 30),
-                _buildSocialLoginButtons(),
-              ],
+              ),
             ),
           ),
         ),
@@ -110,27 +132,42 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
+  Widget _buildSignUpOption() {
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text("Don't have an account? "),
+          GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SignUpView()),
+              );
+            },
+            child: const Text(
+              'Sign Up',
+              style: TextStyle(
+                color: Colors.blue,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget _buildSocialLoginButtons() {
     return Column(
       children: [
         SocialButton(
-          icon: Container(
+          icon: Image.asset(
+            'assets/logo/fb.png',
             width: 28,
             height: 28,
-            decoration: BoxDecoration(
-              color: const Color(0xFF1877F2),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: const Center(
-              child: Text(
-                'f',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-            ),
+            fit: BoxFit.contain,
           ),
           text: 'Sign up with Facebook',
           onPressed: () {
@@ -139,12 +176,16 @@ class _LoginViewState extends State<LoginView> {
         ),
         const SizedBox(height: 15),
         SocialButton(
-          icon: const Icon(Icons.g_mobiledata, color: Colors.red, size: 32),
+          icon: Image.asset(
+            'assets/logo/g.png',
+            width: 28,
+            height: 28,
+            fit: BoxFit.contain,
+          ),
           text: 'Sign up with Google',
           onPressed: () {
             // Google signup logic
           },
-          isBold: true,
         ),
       ],
     );

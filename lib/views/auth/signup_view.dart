@@ -1,51 +1,74 @@
 import 'package:flutter/material.dart';
-import '../dashboard_view.dart';
+import 'package:petforpat/Widgets/custom_divider.dart';
+import 'package:petforpat/Widgets/social_button.dart';
+import 'package:petforpat/views/auth/login_view.dart';
 
-class SignupView extends StatefulWidget {
-  const SignupView({super.key});
+class SignUpView extends StatefulWidget {
+  const SignUpView({super.key});
 
   @override
-  State<SignupView> createState() => _SignupViewState();
+  State<SignUpView> createState() => _SignUpViewState();
 }
 
-class _SignupViewState extends State<SignupView> {
+class _SignUpViewState extends State<SignUpView> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _passwordVisible = false;
-  bool _confirmPasswordVisible = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFEFF0), // matches splash/login bg
+      backgroundColor: const Color(0xFFEFEFF0),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 50),
-                const Text(
-                  'Create Account',
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: Text(
+                        'Create Account',
+                        style: TextStyle(
+                            fontSize: 28, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    _buildUsernameField(),
+                    const SizedBox(height: 20),
+                    _buildEmailField(),
+                    const SizedBox(height: 20),
+                    _buildPasswordField(),
+                    const SizedBox(height: 30),
+                    _buildSignUpButton(),
+                    const SizedBox(height: 12),
+                    _buildLoginOption(),
+                    const SizedBox(height: 30),
+                    const CustomDivider(text: 'Or'),
+                    const SizedBox(height: 30),
+                    _buildSocialLoginButtons(),
+                  ],
                 ),
-                const SizedBox(height: 40),
-                _buildUsernameField(),
-                const SizedBox(height: 20),
-                _buildEmailField(),
-                const SizedBox(height: 20),
-                _buildPasswordField(),
-                const SizedBox(height: 20),
-                _buildConfirmPasswordField(),
-                const SizedBox(height: 40),
-                _buildSignupButton(),
-              ],
+              ),
             ),
           ),
         ),
@@ -68,15 +91,18 @@ class _SignupViewState extends State<SignupView> {
   Widget _buildEmailField() {
     return TextFormField(
       controller: _emailController,
-      keyboardType: TextInputType.emailAddress,
       decoration: const InputDecoration(
         labelText: 'Email',
         border: OutlineInputBorder(),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) return 'Enter email';
+        if (value == null || value.isEmpty) {
+          return 'Enter email';
+        }
         final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-        if (!emailRegex.hasMatch(value)) return 'Enter valid email';
+        if (!emailRegex.hasMatch(value)) {
+          return 'Enter a valid email';
+        }
         return null;
       },
     );
@@ -101,34 +127,11 @@ class _SignupViewState extends State<SignupView> {
     );
   }
 
-  Widget _buildConfirmPasswordField() {
-    return TextFormField(
-      controller: _confirmPasswordController,
-      obscureText: !_confirmPasswordVisible,
-      decoration: InputDecoration(
-        labelText: 'Confirm Password',
-        border: const OutlineInputBorder(),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
-          ),
-          onPressed: () =>
-              setState(() => _confirmPasswordVisible = !_confirmPasswordVisible),
-        ),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) return 'Confirm your password';
-        if (value != _passwordController.text) return 'Passwords do not match';
-        return null;
-      },
-    );
-  }
-
-  Widget _buildSignupButton() {
+  Widget _buildSignUpButton() {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: _handleSignup,
+        onPressed: _handleSignUp,
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: Colors.blue,
@@ -138,15 +141,70 @@ class _SignupViewState extends State<SignupView> {
     );
   }
 
-  void _handleSignup() {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
-
-    // Here you can add your signup logic, e.g., API call
-
-    // For now, navigate to dashboard directly
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const DashboardView()),
+  Widget _buildLoginOption() {
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text("Already have an account? "),
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+              // Or Navigator.pushReplacement to LoginView if needed
+            },
+            child: const Text(
+              'Login',
+              style: TextStyle(
+                color: Colors.blue,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          )
+        ],
+      ),
     );
+  }
+
+  Widget _buildSocialLoginButtons() {
+    return Column(
+      children: [
+        SocialButton(
+          icon: Image.asset(
+            'assets/logo/fb.png',
+            width: 28,
+            height: 28,
+            fit: BoxFit.contain,
+          ),
+          text: 'Sign up with Facebook',
+          onPressed: () {
+            // Facebook signup logic here
+          },
+        ),
+        const SizedBox(height: 15),
+        SocialButton(
+          icon: Image.asset(
+            'assets/logo/g.png',
+            width: 28,
+            height: 28,
+            fit: BoxFit.contain,
+          ),
+          text: 'Sign up with Google',
+          onPressed: () {
+            // Google signup logic here
+          },
+        ),
+      ],
+    );
+  }
+
+  void _handleSignUp() {
+    if (_formKey.currentState?.validate() ?? false) {
+      // Handle sign-up logic here
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Signing up...')),
+      );
+      // You can add actual sign-up API call here.
+    }
   }
 }
