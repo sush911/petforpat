@@ -21,52 +21,63 @@ class _SignUpViewState extends State<SignUpView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFEFEFF0),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Center(
-                      child: Text(
-                        'Create Account',
-                        style: TextStyle(
-                            fontSize: 28, fontWeight: FontWeight.bold),
-                      ),
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF11998E), Color(0xFF38EF7D)], // teal to green gradient
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+            ),
+          ),
+          child: Center(
+            child: SingleChildScrollView(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+                padding: const EdgeInsets.all(28),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.95),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.12),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
                     ),
-                    const SizedBox(height: 40),
-                    _buildUsernameField(),
-                    const SizedBox(height: 20),
-                    _buildEmailField(),
-                    const SizedBox(height: 20),
-                    _buildPasswordField(),
-                    const SizedBox(height: 30),
-                    _buildSignUpButton(),
-                    const SizedBox(height: 12),
-                    _buildLoginOption(),
-                    const SizedBox(height: 30),
-                    const CustomDivider(text: 'Or'),
-                    const SizedBox(height: 30),
-                    _buildSocialLoginButtons(),
                   ],
+                  border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Center(
+                        child: Text(
+                          'Create Account',
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      _buildUsernameField(),
+                      const SizedBox(height: 20),
+                      _buildEmailField(),
+                      const SizedBox(height: 20),
+                      _buildPasswordField(),
+                      const SizedBox(height: 30),
+                      _buildSignUpButton(),
+                      const SizedBox(height: 12),
+                      _buildLoginOption(),
+                      const SizedBox(height: 30),
+                      const CustomDivider(text: 'Or'),
+                      const SizedBox(height: 30),
+                      _buildSocialLoginButtons(),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -200,7 +211,6 @@ class _SignUpViewState extends State<SignUpView> {
 
   void _handleSignUp() {
     if (_formKey.currentState?.validate() ?? false) {
-      // Handle sign-up logic here
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Signing up...')),
       );
