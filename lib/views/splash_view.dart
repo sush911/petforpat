@@ -17,7 +17,6 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
 
-    // Initialize fade-in animation
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
@@ -26,7 +25,7 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    // Navigate to LoginView after 3 seconds
+    // Navigate after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
@@ -43,30 +42,35 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screen = MediaQuery.of(context).size;
+    final isTablet = screen.width >= 600;
+
+    // Limit sizes to keep things proportionate
+    final logoSize = screen.width.clamp(150.0, 350.0);
+    final fontSize = isTablet ? 36.0 : 28.0;
 
     return Scaffold(
-      body: AnimatedContainer(
-        duration: const Duration(seconds: 3),
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Color(0xFFFF7043), // Deeper orange
-              Color(0xFFFFCC80), // Light orange
-            ],
+            colors: [Color(0xFFFF7043), Color(0xFFFFCC80)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Center(
+        child: SafeArea(
           child: FadeTransition(
             opacity: _fadeIn,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 🐾 Bigger, responsive logo
-                SizedBox(
-                  width: screenWidth * 0.7,
+                // 🐾 Logo with max width constraint
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: logoSize,
+                  ),
                   child: Image.asset(
                     'assets/logo/pet.jpg',
                     fit: BoxFit.contain,
@@ -75,14 +79,15 @@ class _SplashScreenState extends State<SplashScreen>
                 const SizedBox(height: 24),
 
                 // 📝 App title
-                const Text(
+                Text(
                   'Pet Adoption',
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 36,
+                    fontSize: fontSize,
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
                     letterSpacing: 1.5,
-                    shadows: [
+                    shadows: const [
                       Shadow(
                         blurRadius: 10,
                         color: Colors.black45,
@@ -91,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ],
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 40),
 
                 // ⏳ Spinner
                 const CircularProgressIndicator(

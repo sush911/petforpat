@@ -37,11 +37,11 @@ class _LoginViewState extends State<LoginView> {
                 margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
                 padding: const EdgeInsets.all(28),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.95),
+                  color: Colors.white.withAlpha(242),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
+                      color: Colors.black.withAlpha(31),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
