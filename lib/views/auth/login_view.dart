@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:petforpat/Widgets/custom_divider.dart';
 import 'package:petforpat/Widgets/social_button.dart';
+import 'package:petforpat/theme/theme_data.dart';
 import 'package:petforpat/views/auth/signup_view.dart';
 import 'package:petforpat/views/dashboard_view.dart';
+
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -87,33 +89,39 @@ class _LoginViewState extends State<LoginView> {
   }
 
   Widget _buildUsernameField() {
-    return TextFormField(
-      controller: _usernameController,
-      decoration: const InputDecoration(
-        labelText: 'Username',
-        border: OutlineInputBorder(),
+    return Theme(
+      data: getApplicationTheme(),
+      child: TextFormField(
+        controller: _usernameController,
+        decoration: const InputDecoration(
+          labelText: 'Username',
+          border: OutlineInputBorder(),
+        ),
+        validator: (value) =>
+        value == null || value.isEmpty ? 'Enter username' : null,
       ),
-      validator: (value) =>
-      value == null || value.isEmpty ? 'Enter username' : null,
     );
   }
 
   Widget _buildPasswordField() {
-    return TextFormField(
-      controller: _passwordController,
-      obscureText: !_passwordVisible,
-      decoration: InputDecoration(
-        labelText: 'Password',
-        border: const OutlineInputBorder(),
-        suffixIcon: IconButton(
-          icon: Icon(
-            _passwordVisible ? Icons.visibility : Icons.visibility_off,
+    return Theme(
+      data: getApplicationTheme(),
+      child: TextFormField(
+        controller: _passwordController,
+        obscureText: !_passwordVisible,
+        decoration: InputDecoration(
+          labelText: 'Password',
+          border: const OutlineInputBorder(),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _passwordVisible ? Icons.visibility : Icons.visibility_off,
+            ),
+            onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
           ),
-          onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
         ),
+        validator: (value) =>
+        value == null || value.isEmpty ? 'Enter password' : null,
       ),
-      validator: (value) =>
-      value == null || value.isEmpty ? 'Enter password' : null,
     );
   }
 
@@ -124,12 +132,12 @@ class _LoginViewState extends State<LoginView> {
       child: Text(
         'Incorrect username or password',
         style: TextStyle(
-            fontFamily: 'OpenSans',
-            color: Colors.red.shade700),
+          fontFamily: 'OpenSans',
+          color: Colors.red.shade700,
+        ),
       ),
     );
   }
-
 
   Widget _buildLoginButton() {
     return SizedBox(
@@ -140,9 +148,13 @@ class _LoginViewState extends State<LoginView> {
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: Colors.blue,
         ),
-        child: const Text('Login', style: TextStyle(
+        child: const Text(
+          'Login',
+          style: TextStyle(
             fontFamily: 'Roboto',
-            color: Colors.white)),
+            color: Colors.white,
+          ),
+        ),
       ),
     );
   }
@@ -152,9 +164,9 @@ class _LoginViewState extends State<LoginView> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
+          const Text(
             "Don't have an account? ",
-            style: const TextStyle(fontFamily: 'Robotoo'),
+            style: TextStyle(fontFamily: 'Robotoo'),
           ),
           GestureDetector(
             onTap: () {

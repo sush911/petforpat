@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:petforpat/Widgets/custom_divider.dart';
 import 'package:petforpat/Widgets/social_button.dart';
 import 'package:petforpat/views/auth/login_view.dart';
+import 'package:petforpat/theme/theme_data.dart';  // Import your theme
 
 class SignUpView extends StatefulWidget {
   const SignUpView({super.key});
@@ -20,6 +21,8 @@ class _SignUpViewState extends State<SignUpView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = getApplicationTheme(); // Get your theme here
+
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -41,11 +44,11 @@ class _SignUpViewState extends State<SignUpView> {
                         margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
                         padding: const EdgeInsets.all(28),
                         decoration: BoxDecoration(
-                          color: const Color(0xF2FFFFFF), // Equivalent to white.withOpacity(0.95)
+                          color: const Color(0xF2FFFFFF),
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0x1F000000), // ~ black.withOpacity(0.12)
+                              color: const Color(0x1F000000),
                               blurRadius: 12,
                               offset: const Offset(0, 6),
                             ),
@@ -63,16 +66,15 @@ class _SignUpViewState extends State<SignUpView> {
                                   style: TextStyle(
                                     fontFamily: 'Roboto',
                                     fontSize: 28,
-
                                   ),
                                 ),
                               ),
                               const SizedBox(height: 40),
-                              _buildUsernameField(),
+                              _buildUsernameField(theme),
                               const SizedBox(height: 20),
-                              _buildEmailField(),
+                              _buildEmailField(theme),
                               const SizedBox(height: 20),
-                              _buildPasswordField(),
+                              _buildPasswordField(theme),
                               const SizedBox(height: 30),
                               _buildSignUpButton(),
                               const SizedBox(height: 12),
@@ -96,24 +98,46 @@ class _SignUpViewState extends State<SignUpView> {
     );
   }
 
-  Widget _buildUsernameField() {
+  Widget _buildUsernameField(ThemeData theme) {
     return TextFormField(
       controller: _usernameController,
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         labelText: 'Username',
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: theme.primaryColor, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: theme.primaryColor, width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: theme.primaryColor, width: 3),
+        ),
       ),
       validator: (value) =>
       value == null || value.isEmpty ? 'Enter username' : null,
     );
   }
 
-  Widget _buildEmailField() {
+  Widget _buildEmailField(ThemeData theme) {
     return TextFormField(
       controller: _emailController,
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         labelText: 'Email',
-        border: OutlineInputBorder(),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: theme.primaryColor, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: theme.primaryColor, width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: theme.primaryColor, width: 3),
+        ),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -128,13 +152,24 @@ class _SignUpViewState extends State<SignUpView> {
     );
   }
 
-  Widget _buildPasswordField() {
+  Widget _buildPasswordField(ThemeData theme) {
     return TextFormField(
       controller: _passwordController,
       obscureText: !_passwordVisible,
       decoration: InputDecoration(
         labelText: 'Password',
-        border: const OutlineInputBorder(),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: theme.primaryColor, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: theme.primaryColor, width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: theme.primaryColor, width: 3),
+        ),
         suffixIcon: IconButton(
           icon: Icon(
             _passwordVisible ? Icons.visibility : Icons.visibility_off,
@@ -166,9 +201,10 @@ class _SignUpViewState extends State<SignUpView> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("Already have an account? ", style: TextStyle(
-            fontFamily: 'Robotoo'
-          ),),
+          const Text(
+            "Already have an account? ",
+            style: TextStyle(fontFamily: 'Robotoo'),
+          ),
           GestureDetector(
             onTap: () {
               Navigator.pop(context);

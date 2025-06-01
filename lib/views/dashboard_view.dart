@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'pet_screen.dart';
-import 'settings_screen.dart';
-import 'profile_screen.dart';
+import 'package:petforpat/views/pet_screen.dart';
+import 'package:petforpat/views/settings_screen.dart';
+import 'package:petforpat/views/profile_screen.dart';
 import 'dashboard_home.dart';
 
 class DashboardView extends StatefulWidget {
@@ -18,36 +18,37 @@ class _DashboardViewState extends State<DashboardView> {
     setState(() => _currentIndex = index);
   }
 
-  final List<Widget> _screens = [];
+  late final List<Widget> _screens;
 
   @override
   void initState() {
     super.initState();
-    _screens.addAll([
-      DashboardHome(onPetTap: () => _onTabTapped(1)), // Navigate to PetScreen
+    _screens = [
+      DashboardHome(onPetTap: () => _onTabTapped(1)),
       const PetScreen(),
       const SettingsScreen(),
       const ProfileScreen(),
-    ]);
+    ];
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: _currentIndex == 0, // Allow exit only from DashboardHome
-      onPopInvokedWithResult: (didPop, result) {
-        if (!didPop && _currentIndex != 0) {
-          setState(() => _currentIndex = 0); // Return to DashboardHome
+    return WillPopScope(
+      onWillPop: () async {
+        if (_currentIndex != 0) {
+          setState(() => _currentIndex = 0);
+          return false;
         }
+        return true;
       },
       child: Scaffold(
         body: _screens[_currentIndex],
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: _onTabTapped,
-          selectedItemColor: Colors.white70,
-          unselectedItemColor: Colors.grey[800],
-          backgroundColor: Colors.teal[300],
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.grey[400],
+          backgroundColor: Colors.teal[400],
           type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),

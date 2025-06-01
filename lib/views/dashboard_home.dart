@@ -11,10 +11,30 @@ class DashboardHome extends StatefulWidget {
 
 class _DashboardHomeState extends State<DashboardHome> {
   final List<Map<String, String>> pets = const [
-    {'name': 'Biralo', 'location': 'Kathmandu', 'image': 'assets/images/catA.jpg', 'type': 'Cat'},
-    {'name': 'Khaire', 'location': 'Pokhara', 'image': 'assets/images/dogA.jpg', 'type': 'Dog'},
-    {'name': 'Fluffy', 'location': 'Lalitpur', 'image': 'assets/images/catB.jpg', 'type': 'Cat'},
-    {'name': 'Buddy', 'location': 'Bhaktapur', 'image': 'assets/images/dogB.jpg', 'type': 'Dog'},
+    {
+      'name': 'Biralo',
+      'location': 'Kathmandu',
+      'image': 'assets/images/catA.jpg',
+      'type': 'Cat'
+    },
+    {
+      'name': 'Khaire',
+      'location': 'Pokhara',
+      'image': 'assets/images/dogA.jpg',
+      'type': 'Dog'
+    },
+    {
+      'name': 'Fluffy',
+      'location': 'Lalitpur',
+      'image': 'assets/images/catB.jpg',
+      'type': 'Cat'
+    },
+    {
+      'name': 'Buddy',
+      'location': 'Bhaktapur',
+      'image': 'assets/images/dogB.jpg',
+      'type': 'Dog'
+    },
   ];
 
   final List<String> categories = const ['Cat', 'Dog'];
@@ -23,7 +43,8 @@ class _DashboardHomeState extends State<DashboardHome> {
 
   List<Map<String, String>> get filteredPets {
     return pets.where((pet) {
-      final matchesCategory = selectedCategory.isEmpty || pet['type'] == selectedCategory;
+      final matchesCategory = selectedCategory.isEmpty ||
+          pet['type'] == selectedCategory;
       final matchesSearch = searchQuery.isEmpty ||
           pet['name']!.toLowerCase().contains(searchQuery.toLowerCase()) ||
           pet['location']!.toLowerCase().contains(searchQuery.toLowerCase());
@@ -33,12 +54,15 @@ class _DashboardHomeState extends State<DashboardHome> {
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = MediaQuery.of(context).size.width > 600;
+    final isTablet = MediaQuery
+        .of(context)
+        .size
+        .width > 600;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pet Adoption',
-        style: TextStyle(fontFamily: 'Robotoo'),),
+          style: TextStyle(fontFamily: 'Robotoo'),),
         backgroundColor: Colors.teal,
         elevation: 0,
       ),
@@ -56,8 +80,13 @@ class _DashboardHomeState extends State<DashboardHome> {
                   const SizedBox(height: 16),
                   Text(
                     'Available Pets (${filteredPets.length})',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(
                       color: Colors.purple[800],
+                      fontFamily: 'Robotoo',
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -85,9 +114,9 @@ class _DashboardHomeState extends State<DashboardHome> {
         hintText: 'Search pets...',
         prefixIcon: const Icon(Icons.search, color: Colors.teal),
         filled: true,
-        fillColor: Colors.amber[50],
+        fillColor: Colors.orangeAccent[100],
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide.none,
         ),
       ),
@@ -97,15 +126,18 @@ class _DashboardHomeState extends State<DashboardHome> {
   Widget _buildCategories() {
     return Wrap(
       spacing: 8,
-      children: categories.map((category) => ChoiceChip(
-        label: Text(category, style: const TextStyle(color: Colors.white)),
-        selected: selectedCategory == category,
-        selectedColor: Colors.purple,
-        backgroundColor: Colors.teal[300],
-        onSelected: (_) => setState(() {
-          selectedCategory = selectedCategory == category ? '' : category;
-        }),
-      )).toList(),
+      children: categories.map((category) =>
+          ChoiceChip(
+            label: Text(category, style: const TextStyle(color: Colors.white)),
+            selected: selectedCategory == category,
+            selectedColor: Colors.purple,
+            backgroundColor: Colors.teal[300],
+            onSelected: (_) =>
+                setState(() {
+                  selectedCategory =
+                  selectedCategory == category ? '' : category;
+                }),
+          )).toList(),
     );
   }
 
@@ -153,7 +185,7 @@ class _DashboardHomeState extends State<DashboardHome> {
     );
   }
 
-  Widget _buildPetCard(Map<String, String> pet) {
+  Widget _buildPetCard(Map<String, dynamic> pet) {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -193,14 +225,20 @@ class _DashboardHomeState extends State<DashboardHome> {
         ),
         title: Text(
           pet['name']!,
-          style: TextStyle(
-            color: Colors.purple[900],
+          style: const TextStyle(
+            fontFamily: 'Robotoo',
             fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.purple,
           ),
         ),
         subtitle: Text(
           pet['location']!,
-          style: TextStyle(color: Colors.teal[700]),
+          style: const TextStyle(
+            fontFamily: 'Robotoo',
+            fontSize: 14,
+            color: Colors.teal,
+          ),
         ),
         trailing: Chip(
           label: Text(pet['type']!),
