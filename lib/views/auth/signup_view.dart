@@ -61,9 +61,9 @@ class _SignUpViewState extends State<SignUpView> {
                                 child: Text(
                                   'Create Account',
                                   style: TextStyle(
+                                    fontFamily: 'Roboto',
                                     fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
+
                                   ),
                                 ),
                               ),
@@ -166,7 +166,9 @@ class _SignUpViewState extends State<SignUpView> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("Already have an account? "),
+          const Text("Already have an account? ", style: TextStyle(
+            fontFamily: 'Robotoo'
+          ),),
           GestureDetector(
             onTap: () {
               Navigator.pop(context);

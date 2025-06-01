@@ -57,9 +57,8 @@ class _LoginViewState extends State<LoginView> {
                         child: Text(
                           'Welcome Back',
                           style: TextStyle(
+                            fontFamily: 'Roboto',
                             fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
                           ),
                         ),
                       ),
@@ -124,10 +123,13 @@ class _LoginViewState extends State<LoginView> {
       padding: const EdgeInsets.only(top: 10),
       child: Text(
         'Incorrect username or password',
-        style: TextStyle(color: Colors.red.shade700),
+        style: TextStyle(
+            fontFamily: 'OpenSans',
+            color: Colors.red.shade700),
       ),
     );
   }
+
 
   Widget _buildLoginButton() {
     return SizedBox(
@@ -138,7 +140,9 @@ class _LoginViewState extends State<LoginView> {
           padding: const EdgeInsets.symmetric(vertical: 16),
           backgroundColor: Colors.blue,
         ),
-        child: const Text('Login', style: TextStyle(color: Colors.white)),
+        child: const Text('Login', style: TextStyle(
+            fontFamily: 'Roboto',
+            color: Colors.white)),
       ),
     );
   }
@@ -148,7 +152,10 @@ class _LoginViewState extends State<LoginView> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("Don't have an account? "),
+          Text(
+            "Don't have an account? ",
+            style: const TextStyle(fontFamily: 'Robotoo'),
+          ),
           GestureDetector(
             onTap: () {
               Navigator.push(
@@ -159,6 +166,7 @@ class _LoginViewState extends State<LoginView> {
             child: const Text(
               'Sign Up',
               style: TextStyle(
+                fontFamily: 'Robotoo',
                 color: Colors.blue,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.underline,

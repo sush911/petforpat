@@ -35,7 +35,9 @@ class SocialButton extends StatelessWidget {
             Expanded(
               child: Text(
                 text,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    fontFamily: 'OpenSans',
+                    fontWeight: FontWeight.bold),
               ),
             ),
           ],
