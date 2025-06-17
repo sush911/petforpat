@@ -26,11 +26,10 @@ class _SignUpViewState extends State<SignUpView> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: const [Color(0xFF11998E), Color(0xFF38EF7D)],
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/1.png'),
+              fit: BoxFit.cover,
             ),
           ),
           child: LayoutBuilder(
@@ -44,7 +43,7 @@ class _SignUpViewState extends State<SignUpView> {
                         margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
                         padding: const EdgeInsets.all(28),
                         decoration: BoxDecoration(
-                          color: const Color(0xF2FFFFFF),
+                          color: Colors.white.withOpacity(0.85),
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
@@ -115,6 +114,8 @@ class _SignUpViewState extends State<SignUpView> {
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: theme.primaryColor, width: 3),
         ),
+        fillColor: Colors.white.withOpacity(0.9),
+        filled: true,
       ),
       validator: (value) =>
       value == null || value.isEmpty ? 'Enter username' : null,
@@ -138,6 +139,8 @@ class _SignUpViewState extends State<SignUpView> {
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: theme.primaryColor, width: 3),
         ),
+        fillColor: Colors.white.withOpacity(0.9),
+        filled: true,
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -170,6 +173,8 @@ class _SignUpViewState extends State<SignUpView> {
           borderRadius: BorderRadius.circular(8),
           borderSide: BorderSide(color: theme.primaryColor, width: 3),
         ),
+        fillColor: Colors.white.withOpacity(0.9),
+        filled: true,
         suffixIcon: IconButton(
           icon: Icon(
             _passwordVisible ? Icons.visibility : Icons.visibility_off,
@@ -189,7 +194,7 @@ class _SignUpViewState extends State<SignUpView> {
         onPressed: _handleSignUp,
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.blue.withOpacity(0.9),
         ),
         child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
       ),

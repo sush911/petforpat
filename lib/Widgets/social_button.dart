@@ -19,7 +19,7 @@ class SocialButton extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.white.withOpacity(0.9),
           foregroundColor: Colors.black,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),

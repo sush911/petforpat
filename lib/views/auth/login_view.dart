@@ -27,10 +27,9 @@ class _LoginViewState extends State<LoginView> {
       body: SafeArea(
         child: Container(
           decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF6A11CB), Color(0xFF2575FC)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+            image: DecorationImage(
+              image: AssetImage('assets/images/1.png'),
+              fit: BoxFit.cover,
             ),
           ),
           child: Center(
@@ -39,7 +38,7 @@ class _LoginViewState extends State<LoginView> {
                 margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
                 padding: const EdgeInsets.all(28),
                 decoration: BoxDecoration(
-                  color: Colors.white.withAlpha(242),
+                  color: Colors.white.withOpacity(0.85),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -93,9 +92,11 @@ class _LoginViewState extends State<LoginView> {
       data: getApplicationTheme(),
       child: TextFormField(
         controller: _usernameController,
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           labelText: 'Username',
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
+          fillColor: Colors.white.withOpacity(0.9),
+          filled: true,
         ),
         validator: (value) =>
         value == null || value.isEmpty ? 'Enter username' : null,
@@ -112,6 +113,8 @@ class _LoginViewState extends State<LoginView> {
         decoration: InputDecoration(
           labelText: 'Password',
           border: const OutlineInputBorder(),
+          fillColor: Colors.white.withOpacity(0.9),
+          filled: true,
           suffixIcon: IconButton(
             icon: Icon(
               _passwordVisible ? Icons.visibility : Icons.visibility_off,
@@ -146,7 +149,7 @@ class _LoginViewState extends State<LoginView> {
         onPressed: _handleLogin,
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.blue.withOpacity(0.9),
         ),
         child: const Text(
           'Login',
