@@ -226,7 +226,7 @@ class _DashboardHomeState extends State<DashboardHome> {
         title: Text(
           pet['name']!,
           style: const TextStyle(
-            fontFamily: 'Robotoo',
+            fontFamily: 'Roboto',
             fontWeight: FontWeight.bold,
             fontSize: 16,
             color: Colors.purple,

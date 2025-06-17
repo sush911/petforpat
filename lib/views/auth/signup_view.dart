@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:petforpat/Widgets/custom_divider.dart';
 import 'package:petforpat/Widgets/social_button.dart';
 import 'package:petforpat/views/auth/login_view.dart';
-import 'package:petforpat/theme/theme_data.dart';  // Import your theme
+import 'package:petforpat/theme/theme_data.dart';
 
 class SignUpView extends StatefulWidget {
   const SignUpView({super.key});

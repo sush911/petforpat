@@ -46,8 +46,8 @@ class _DashboardViewState extends State<DashboardView> {
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: _onTabTapped,
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.grey[400],
+          selectedItemColor: Colors.black,
+          unselectedItemColor: Colors.white,
           backgroundColor: Colors.teal[400],
           type: BottomNavigationBarType.fixed,
           items: const [
