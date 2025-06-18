@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:petforpat/views/pet_screen.dart';
-import 'package:petforpat/views/favorite_screen.dart';
+import 'package:petforpat/views/chat_screen.dart';
 import 'package:petforpat/views/profile_screen.dart';
 import 'dashboard_home.dart';
 
@@ -26,7 +26,7 @@ class _DashboardViewState extends State<DashboardView> {
     _screens = [
       DashboardHome(onPetTap: () => _onTabTapped(1)),
       const PetScreen(),
-      const FavoriteScreen(),
+      const ChatScreen(),
       const ProfileScreen(),
     ];
   }
@@ -53,7 +53,7 @@ class _DashboardViewState extends State<DashboardView> {
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),
             BottomNavigationBarItem(icon: Icon(Icons.pets), label: 'Pet'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favourite'),
+            BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'chat'),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
         ),
