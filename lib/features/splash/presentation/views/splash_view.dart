@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:petforpat/views/auth/login_view.dart';
+import 'package:petforpat/features/auth/presentation/views/login_view.dart';
+
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

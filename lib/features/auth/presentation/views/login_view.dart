@@ -1,244 +1,68 @@
 import 'package:flutter/material.dart';
-import 'package:petforpat/Widgets/custom_divider.dart';
-import 'package:petforpat/Widgets/social_button.dart';
-import 'package:petforpat/theme/theme_data.dart';
-import 'package:petforpat/views/auth/signup_view.dart';
-import 'package:petforpat/views/dashboard_view.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:petforpat/app/service_locator/service_locator.dart';
+import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart';
+import 'package:petforpat/features/dashboard/presentation/views/dashboard_view.dart';
+import 'signup_view.dart';
 
-
-class LoginView extends StatefulWidget {
+class LoginView extends StatelessWidget {
   const LoginView({super.key});
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<AuthBloc>(),
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Login')),
+        body: BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthSuccess) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const DashboardView()),
+              );
+            } else if (state is AuthFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+          child: LoginForm(),
+        ),
+      ),
+    );
+  }
 }
 
-class _LoginViewState extends State<LoginView> {
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+class LoginForm extends StatefulWidget {
+  @override
+  State<LoginForm> createState() => _LoginFormState();
+}
 
-  bool _passwordVisible = false;
-  bool _showError = false;
+class _LoginFormState extends State<LoginForm> {
+  final _u = TextEditingController();
+  final _p = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/1.png'),
-              fit: BoxFit.cover,
-            ),
-          ),
-          child: Center(
-            child: SingleChildScrollView(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
-                padding: const EdgeInsets.all(28),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.85),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(31),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                  border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                ),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Center(
-                        child: Text(
-                          'Welcome Back',
-                          style: TextStyle(
-                            fontFamily: 'Roboto',
-                            fontSize: 28,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-                      _buildUsernameField(),
-                      const SizedBox(height: 20),
-                      _buildPasswordField(),
-                      _buildErrorMessage(),
-                      const SizedBox(height: 30),
-                      _buildLoginButton(),
-                      const SizedBox(height: 12),
-                      _buildSignUpOption(),
-                      const SizedBox(height: 30),
-                      const CustomDivider(text: 'Or'),
-                      const SizedBox(height: 30),
-                      _buildSocialLoginButtons(),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUsernameField() {
-    return Theme(
-      data: getApplicationTheme(),
-      child: TextFormField(
-        controller: _usernameController,
-        decoration: InputDecoration(
-          labelText: 'Username',
-          border: const OutlineInputBorder(),
-          fillColor: Colors.white.withOpacity(0.9),
-          filled: true,
-        ),
-        validator: (value) =>
-        value == null || value.isEmpty ? 'Enter username' : null,
-      ),
-    );
-  }
-
-  Widget _buildPasswordField() {
-    return Theme(
-      data: getApplicationTheme(),
-      child: TextFormField(
-        controller: _passwordController,
-        obscureText: !_passwordVisible,
-        decoration: InputDecoration(
-          labelText: 'Password',
-          border: const OutlineInputBorder(),
-          fillColor: Colors.white.withOpacity(0.9),
-          filled: true,
-          suffixIcon: IconButton(
-            icon: Icon(
-              _passwordVisible ? Icons.visibility : Icons.visibility_off,
-            ),
-            onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
-          ),
-        ),
-        validator: (value) =>
-        value == null || value.isEmpty ? 'Enter password' : null,
-      ),
-    );
-  }
-
-  Widget _buildErrorMessage() {
-    if (!_showError) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: Text(
-        'Incorrect username or password',
-        style: TextStyle(
-          fontFamily: 'OpenSans',
-          color: Colors.red.shade700,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoginButton() {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: _handleLogin,
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: Colors.blue.withOpacity(0.9),
-        ),
-        child: const Text(
-          'Login',
-          style: TextStyle(
-            fontFamily: 'Roboto',
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSignUpOption() {
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
         children: [
-          const Text(
-            "Don't have an account? ",
-            style: TextStyle(fontFamily: 'Robotoo'),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SignUpView()),
-              );
+          TextField(controller: _u, decoration: const InputDecoration(labelText: 'Username')),
+          TextField(controller: _p, decoration: const InputDecoration(labelText: 'Password'), obscureText: true),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              final u = _u.text.trim(), p = _p.text.trim();
+              context.read<AuthBloc>().add(LoginRequested(u, p));
             },
-            child: const Text(
-              'Sign Up',
-              style: TextStyle(
-                fontFamily: 'Robotoo',
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          )
+            child: const Text('Login'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignupView())),
+            child: const Text("Don't have an account? Sign up"),
+          ),
         ],
       ),
     );
-  }
-
-  Widget _buildSocialLoginButtons() {
-    return Column(
-      children: [
-        SocialButton(
-          icon: Image.asset(
-            'assets/logo/fb.png',
-            width: 28,
-            height: 28,
-            fit: BoxFit.contain,
-          ),
-          text: 'Sign up with Facebook',
-          onPressed: () {
-            // Facebook signup logic
-          },
-        ),
-        const SizedBox(height: 15),
-        SocialButton(
-          icon: Image.asset(
-            'assets/logo/g.png',
-            width: 28,
-            height: 28,
-            fit: BoxFit.contain,
-          ),
-          text: 'Sign up with Google',
-          onPressed: () {
-            // Google signup logic
-          },
-        ),
-      ],
-    );
-  }
-
-  void _handleLogin() {
-    final isValid = _formKey.currentState?.validate() ?? false;
-    if (!isValid) return;
-
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text.trim();
-
-    if (username == 'admin' && password == 'admin123') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const DashboardView()),
-      );
-    } else {
-      setState(() => _showError = true);
-    }
   }
 }

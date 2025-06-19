@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:petforpat/views/pet_screen.dart';
-import 'package:petforpat/views/chat_screen.dart';
-import 'package:petforpat/views/profile_screen.dart';
+import 'package:petforpat/features/chat/presentation/views/chat_screen.dart';
+import 'package:petforpat/features/pets/presentation/views/pet_screen.dart';
+import 'package:petforpat/features/profile/presentation/views/profile_screen.dart';
 import 'dashboard_home.dart';
 
 class DashboardView extends StatefulWidget {

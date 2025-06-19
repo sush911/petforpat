@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:petforpat/views/splash_view.dart';
+import 'package:petforpat/features/splash/presentation/views/splash_view.dart';
+
 
 
 class PetForPatApp extends StatelessWidget {
