@@ -1,9 +1,9 @@
+
+
 import 'package:petforpat/features/auth/data/datasources/local_datasource/userlocal_datasource.dart';
-
-import '../../domain/entities/user.dart';
-import '../../domain/repositories/user_repository.dart';
-
-import '../models/user_model.dart';
+import 'package:petforpat/features/auth/data/models/user_model.dart';
+import 'package:petforpat/features/auth/domain/entities/user.dart';
+import 'package:petforpat/features/auth/domain/repositories/user_repository.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final UserLocalDataSource localDataSource;

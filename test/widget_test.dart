@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:petforpat/app.dart';
 import 'package:petforpat/main.dart';
+
+import '../lib/app/app.dart';
 
 void main() {
   testWidgets('App launches and shows splash screen with logo', (WidgetTester tester) async {
