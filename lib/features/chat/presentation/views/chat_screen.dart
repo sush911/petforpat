@@ -8,3 +8,4 @@ class ChatScreen extends StatelessWidget {
     return const Center(child: Text("Chatting"));
   }
 }
+
