@@ -99,8 +99,3 @@ flutter:
       fonts:
         - asset: assets/fonts/opensansmedium.ttf
 
-    - family: YourCustomFont
-      fonts:
-        - asset: assets/fonts/YourCustomFont-Regular.ttf
-        - asset: assets/fonts/YourCustomFont-Bold.ttf
-          weight: 700
