@@ -1,13 +1,13 @@
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:petforpat/features/auth/data/datasources/local_datasource/userlocal_datasource.dart';
-import 'package:petforpat/features/auth/data/models/user_model.dart' hide UserModel, UserModelAdapter;
-import '../../features/auth/data/models/user_model.dart';
-import '../../features/auth/data/repositories/user_repository_impl.dart';
-import '../../features/auth/domain/repositories/user_repository.dart';
-import '../../features/auth/domain/usecases/login_usecase.dart';
-import '../../features/auth/domain/usecases/register_usecase.dart';
-import '../../features/auth/presentation/view_models/auth_bloc.dart';
+import 'package:petforpat/features/auth/data/models/user_model.dart'; // ✅ ONLY THIS
+import 'package:petforpat/features/auth/data/repositories/user_repository_impl.dart';
+import 'package:petforpat/features/auth/domain/repositories/user_repository.dart';
+import 'package:petforpat/features/auth/domain/usecases/login_usecase.dart';
+import 'package:petforpat/features/auth/domain/usecases/register_usecase.dart';
+import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart';
+
 
 final sl = GetIt.instance;
 
