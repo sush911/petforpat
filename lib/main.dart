@@ -9,15 +9,18 @@ Future<void> main() async {
   // Initialize Hive
   await Hive.initFlutter();
 
-  // Open the Hive box named 'profileInstalled' (or your box name)
+  // Open the Hive box
   await Hive.openBox('profileInstalled');
 
-  // You can open more boxes here if you have them
-  // await Hive.openBox<UserModel>('users');
+  // DEBUG PRINT
+  final profileBox = Hive.box('profileInstalled');
+  print('🔍 Hive: profileInstalled contents:');
+  for (var key in profileBox.keys) {
+    print('👉 $key: ${profileBox.get(key)}');
+  }
 
-  // Setup your dependency injection
+  // Setup DI
   await setupServiceLocator();
 
-  // Run your app
   runApp(const PetForPatApp());
 }
