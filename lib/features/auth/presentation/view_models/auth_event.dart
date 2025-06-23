@@ -16,7 +16,7 @@ class LoginRequested extends AuthEvent {
 }
 
 class RegisterRequested extends AuthEvent {
-  final User user;
+  final RegisterUser user;  // <-- changed to RegisterUser
 
   RegisterRequested(this.user);
 

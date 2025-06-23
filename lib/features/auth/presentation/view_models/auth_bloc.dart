@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:hive/hive.dart'; //
+import 'package:hive/hive.dart';
+import 'package:petforpat/app/shared_pref/shared_pref_service.dart';
+import 'package:petforpat/features/auth/domain/entities/register_user.dart';  // Import RegisterUser
 import '../../domain/entities/user.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
@@ -11,6 +13,7 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginUseCase loginUseCase;
   final RegisterUseCase registerUseCase;
+  final SharedPrefService _sharedPrefService = SharedPrefService();
 
   AuthBloc({
     required this.loginUseCase,
@@ -21,10 +24,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         final user = await loginUseCase(event.username, event.password);
         if (user != null) {
-          // ✅ Save login time in Hive
           final box = Hive.box('profileInstalled');
           await box.put('loginTime', DateTime.now().toIso8601String());
           print('✅ Saved login time: ${box.get('loginTime')}');
+
+          await _sharedPrefService.saveLoginSession(
+            userId: user.id,
+            authToken: user.token,
+          );
 
           emit(AuthSuccess(user));
         } else {
@@ -38,7 +45,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RegisterRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        await registerUseCase(event.user);
+        await registerUseCase(event.user);  // event.user is RegisterUser
         emit(RegisterSuccess());
       } catch (e) {
         emit(AuthFailure(e.toString()));

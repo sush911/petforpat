@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:petforpat/features/auth/domain/entities/register_user.dart';
 import 'package:petforpat/features/auth/domain/entities/user.dart';
 import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart';
 import 'package:petforpat/features/auth/presentation/widgets/custom_divider.dart';
@@ -150,10 +151,14 @@ class _SignUpViewState extends State<SignUpView> {
 
   void _onSignUpPressed() {
     if (!_formKey.currentState!.validate()) return;
-    final user = User(
+
+    final registerUser = RegisterUser(
       username: _usernameController.text.trim(),
+      email: _emailController.text.trim(),
       password: _passwordController.text.trim(),
     );
-    context.read<AuthBloc>().add(RegisterRequested(user));
+
+    context.read<AuthBloc>().add(RegisterRequested(registerUser));
   }
+
 }
