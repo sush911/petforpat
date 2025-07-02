@@ -1,5 +1,5 @@
-import 'package:dio/dio.dart';
-import '../../../../core/network/api_client.dart';
+// features/auth/data/datasources/remote_datasource/user_remote_datasource.dart
+import 'package:petforpat/core/network/api_client.dart';
 import '../../models/user_model.dart';
 
 abstract class UserRemoteDataSource {
@@ -19,19 +19,11 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
       'password': password,
     });
 
-    if (response.statusCode == 200) {
-      return UserModel.fromJson(response.data);
-    } else {
-      throw Exception('Failed to login');
-    }
+    return UserModel.fromJson(response.data);
   }
 
   @override
   Future<void> register(UserModel user) async {
-    final response = await apiClient.post('/auth/register', user.toJson());
-
-    if (response.statusCode != 201) {
-      throw Exception('Failed to register');
-    }
+    await apiClient.post('/auth/register', user.toJson());
   }
 }
