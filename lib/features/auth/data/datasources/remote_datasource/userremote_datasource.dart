@@ -4,24 +4,32 @@ import '../../models/user_model.dart';
 class UserRemoteDataSource {
   final Dio dio;
 
-  UserRemoteDataSource({required this.dio});
+  UserRemoteDataSource(this.dio);
 
-  Future<UserModel> login(String email, String password) async {
-    final response = await dio.post('/auth/login', data: {
-      'email': email,
+  Future<UserModel> login(String username, String password) async {
+    final response = await dio.post('/login', data: {
+      'username': username,
       'password': password,
     });
 
-    return UserModel.fromJson(response.data['user']);
+    if (response.statusCode == 200) {
+      return UserModel.fromJson(response.data);
+    } else {
+      throw Exception('Failed to login');
+    }
   }
 
-  Future<UserModel> register(String name, String email, String password) async {
-    final response = await dio.post('/auth/register', data: {
-      'name': name,
+  Future<UserModel> register(String username, String email, String password) async {
+    final response = await dio.post('/register', data: {
+      'username': username,
       'email': email,
       'password': password,
     });
 
-    return UserModel.fromJson(response.data['user']);
+    if (response.statusCode == 201) {
+      return UserModel.fromJson(response.data);
+    } else {
+      throw Exception('Failed to register');
+    }
   }
 }
