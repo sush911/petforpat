@@ -2,12 +2,12 @@ import 'package:dio/dio.dart';
 import '../../models/user_model.dart';
 
 class UserRemoteDataSource {
-  final Dio dio;
+  final ApiClient apiClient;
 
-  UserRemoteDataSource(this.dio);
+  UserRemoteDataSource(this.apiClient);
 
   Future<UserModel> login(String username, String password) async {
-    final response = await dio.post('/login', data: {
+    final response = await apiClient.post('/login', {
       'username': username,
       'password': password,
     });
@@ -20,7 +20,7 @@ class UserRemoteDataSource {
   }
 
   Future<UserModel> register(String username, String email, String password) async {
-    final response = await dio.post('/register', data: {
+    final response = await apiClient.post('/register', {
       'username': username,
       'email': email,
       'password': password,
