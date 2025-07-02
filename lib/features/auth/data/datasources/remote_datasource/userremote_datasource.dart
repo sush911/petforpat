@@ -1,13 +1,20 @@
 import 'package:dio/dio.dart';
+import '../../../../core/network/api_client.dart';
 import '../../models/user_model.dart';
 
-class UserRemoteDataSource {
+abstract class UserRemoteDataSource {
+  Future<UserModel> login(String username, String password);
+  Future<void> register(UserModel user);
+}
+
+class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   final ApiClient apiClient;
 
-  UserRemoteDataSource(this.apiClient);
+  UserRemoteDataSourceImpl(this.apiClient);
 
+  @override
   Future<UserModel> login(String username, String password) async {
-    final response = await apiClient.post('/login', {
+    final response = await apiClient.post('/auth/login', {
       'username': username,
       'password': password,
     });
@@ -19,16 +26,11 @@ class UserRemoteDataSource {
     }
   }
 
-  Future<UserModel> register(String username, String email, String password) async {
-    final response = await apiClient.post('/register', {
-      'username': username,
-      'email': email,
-      'password': password,
-    });
+  @override
+  Future<void> register(UserModel user) async {
+    final response = await apiClient.post('/auth/register', user.toJson());
 
-    if (response.statusCode == 201) {
-      return UserModel.fromJson(response.data);
-    } else {
+    if (response.statusCode != 201) {
       throw Exception('Failed to register');
     }
   }
