@@ -1,30 +1,35 @@
-import '../../domain/entities/register_user.dart';
-import '../../domain/entities/user.dart';
-import '../../domain/repositories/user_repository.dart';
-import '../datasources/remote_datasource/userremote_datasource.dart';
+// features/auth/data/repositories/user_repository_impl.dart
+
+import 'package:petforpat/features/auth/data/datasources/local_datasource/userlocal_datasource.dart';
+import 'package:petforpat/features/auth/data/datasources/remote_datasource/userremote_datasource.dart';
+import 'package:petforpat/features/auth/domain/entities/register_user.dart';
+import 'package:petforpat/features/auth/domain/entities/user.dart';
+import 'package:petforpat/features/auth/domain/repositories/user_repository.dart';
 import '../models/user_model.dart';
 
 class UserRepositoryImpl implements UserRepository {
   final UserRemoteDataSource remoteDataSource;
+  final UserLocalDataSource localDataSource;
 
-  UserRepositoryImpl(this.remoteDataSource);
+  UserRepositoryImpl({
+    required this.remoteDataSource,
+    required this.localDataSource,
+  });
 
   @override
   Future<void> register(RegisterUser user) async {
-    final userModel = UserModel(
-      id: '',  // leave empty, backend assigns id
-      username: user.username,
-      email: user.email,
-      password: user.password,
-      token: '',
-    );
-
-    await remoteDataSource.register(userModel);
+    await remoteDataSource.register(user);
   }
 
   @override
   Future<User?> login(String username, String password) async {
-    final userModel = await remoteDataSource.login(username, password);
-    return userModel.toEntity();
+    try {
+      final user = await remoteDataSource.login(username, password);
+      final userModel = UserModel.fromEntity(user);
+      await localDataSource.saveUser(userModel); // Cache for local use
+      return user;
+    } catch (e) {
+      rethrow;
+    }
   }
 }
