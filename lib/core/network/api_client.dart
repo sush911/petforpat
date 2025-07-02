@@ -7,3 +7,11 @@ class ApiClient {
     _dio.options.receiveTimeout = const Duration(seconds: 10);
   }
 
+  Future<Response> post(String path, dynamic data) async {
+    return _dio.post(path, data: data);
+  }
+
+  Future<Response> get(String path) async {
+    return _dio.get(path);
+  }
+}
