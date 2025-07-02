@@ -1,3 +1,4 @@
+
 import '../entities/register_user.dart';
 import '../repositories/user_repository.dart';
 
@@ -6,7 +7,7 @@ class RegisterUseCase {
 
   RegisterUseCase(this.repository);
 
-  Future<void> call(RegisterUser registerUser) async {
-    await repository.register(registerUser);
+  Future<void> call(RegisterUser user) {
+    return repository.register(user);
   }
 }
