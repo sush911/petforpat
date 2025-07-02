@@ -18,30 +18,26 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<void> register(RegisterUser user) async {
-    // Convert entity to model for API
+    // Convert entity to UserModel (with username)
     final userModel = UserModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      username: user.username,
+      name: user.username,
+      username: user.username, // ✅ Fixed: username added
       email: user.email,
       password: user.password,
-      token: '', // This will likely be empty on registration
+      token: '', // No token on register
     );
 
-    await remoteDataSource.register(userModel);
-    await localDataSource.saveUser(userModel); // Optional caching
+    await remoteDataSource.register(userModel);        // API call
+    await localDataSource.saveUser(userModel);         // Optional: cache
   }
 
   @override
   Future<User?> login(String username, String password) async {
     try {
-      // Get user from API
       final userModel = await remoteDataSource.login(username, password);
-
-      // Save to Hive (local cache)
-      await localDataSource.saveUser(userModel);
-
-      // Return domain entity
-      return userModel.toEntity();
+      await localDataSource.saveUser(userModel);        // Cache locally
+      return userModel.toEntity();                      // Convert to domain
     } catch (e) {
       rethrow;
     }

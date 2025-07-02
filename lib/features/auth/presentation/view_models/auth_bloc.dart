@@ -3,9 +3,9 @@ import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 import 'package:petforpat/app/shared_pref/shared_pref_service.dart';
 import 'package:petforpat/features/auth/domain/entities/register_user.dart';
-import '../../domain/entities/user.dart';
-import '../../domain/usecases/login_usecase.dart';
-import '../../domain/usecases/register_usecase.dart';
+import 'package:petforpat/features/auth/domain/entities/user.dart';
+import 'package:petforpat/features/auth/domain/usecases/login_usecase.dart';
+import 'package:petforpat/features/auth/domain/usecases/register_usecase.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -18,13 +18,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({
     required this.loginUseCase,
     required this.registerUseCase,
-  }) : super(AuthInitial()) {
+  }) : super(const AuthInitial()) {
     on<LoginRequested>(_onLoginRequested);
     on<RegisterRequested>(_onRegisterRequested);
   }
 
   Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(const AuthLoading());
     try {
       final User? user = await loginUseCase(event.username, event.password);
       if (user != null) {
@@ -39,7 +39,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
         emit(AuthSuccess(user));
       } else {
-        emit(AuthFailure('Invalid username or password'));
+        emit(const AuthFailure('Invalid username or password'));
       }
     } catch (e) {
       emit(AuthFailure(e.toString()));
@@ -47,10 +47,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onRegisterRequested(RegisterRequested event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(const AuthLoading());
     try {
       await registerUseCase(event.user);
-      emit(RegisterSuccess());
+      emit(const RegisterSuccess());
     } catch (e) {
       emit(AuthFailure(e.toString()));
     }

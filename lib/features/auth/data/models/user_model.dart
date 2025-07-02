@@ -1,4 +1,3 @@
-// user_model.dart
 import 'package:hive/hive.dart';
 import '../../domain/entities/user.dart';
 
@@ -7,45 +6,74 @@ part 'user_model.g.dart';
 @HiveType(typeId: 0)
 class UserModel extends HiveObject {
   @HiveField(0)
-  final String? id;
+  final String id;
 
   @HiveField(1)
-  final String? username;
+  final String name;
 
   @HiveField(2)
-  final String? email;
+  final String username;
 
   @HiveField(3)
-  final String? password;
+  final String email;
 
   @HiveField(4)
-  final String? token;
+  final String token;
+
+  @HiveField(5)
+  final String password;
 
   UserModel({
     required this.id,
+    required this.name,
     required this.username,
     required this.email,
-    required this.password,
     required this.token,
+    required this.password,
   });
 
+  /// Convert domain entity (User) to UserModel
   factory UserModel.fromEntity(User user) {
     return UserModel(
       id: user.id,
+      name: user.name,
       username: user.username,
       email: user.email,
-      password: user.password,
       token: user.token,
+      password: '', // Password is not stored in domain entity
     );
   }
 
+  /// Convert UserModel to domain entity (User)
   User toEntity() {
     return User(
-      id: id ?? '',
-      username: username ?? '',
-      email: email ?? '',
-      password: password ?? '',
-      token: token ?? '',
+      id: id,
+      name: name,
+      username: username,
+      email: email,
+      token: token,
     );
+  }
+
+  /// Parse UserModel from backend JSON
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['_id'] ?? '',
+      name: json['name'] ?? '',
+      username: json['username'] ?? '',
+      email: json['email'] ?? '',
+      token: json['token'] ?? '',
+      password: '', // Password usually not returned from backend
+    );
+  }
+
+  /// Convert UserModel to JSON for API request
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'username': username,
+      'email': email,
+      'password': password,
+    };
   }
 }

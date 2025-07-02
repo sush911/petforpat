@@ -17,28 +17,31 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UserModel(
-      id: fields[0] as String?,
-      username: fields[1] as String?,
-      email: fields[2] as String?,
-      password: fields[3] as String?,
-      token: fields[4] as String?,
+      id: fields[0] as String,
+      name: fields[1] as String,
+      username: fields[2] as String,
+      email: fields[3] as String,
+      token: fields[4] as String,
+      password: fields[5] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.username)
+      ..write(obj.name)
       ..writeByte(2)
-      ..write(obj.email)
+      ..write(obj.username)
       ..writeByte(3)
-      ..write(obj.password)
+      ..write(obj.email)
       ..writeByte(4)
-      ..write(obj.token);
+      ..write(obj.token)
+      ..writeByte(5)
+      ..write(obj.password);
   }
 
   @override
