@@ -17,12 +17,12 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UserModel(
-      id: fields[0] as String,
-      name: fields[1] as String,
-      username: fields[2] as String,
-      email: fields[3] as String,
-      token: fields[4] as String,
-      password: fields[5] as String,
+      id: (fields[0] ?? '') as String,
+      name: (fields[1] ?? '') as String,
+      username: (fields[2] ?? '') as String,
+      email: (fields[3] ?? '') as String,
+      token: fields[4] as String?,
+      password: fields[5] as String?,
     );
   }
 
@@ -50,7 +50,7 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is UserModelAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+          other is UserModelAdapter &&
+              runtimeType == other.runtimeType &&
+              typeId == other.typeId;
 }

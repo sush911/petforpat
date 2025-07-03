@@ -1,4 +1,3 @@
-// lib/app/service_locator/service_locator.dart
 
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -17,30 +16,34 @@ import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart'
 final sl = GetIt.instance;
 
 Future<void> setupServiceLocator() async {
-  // 🧠 Register Hive adapter for user model
-  Hive.registerAdapter(UserModelAdapter());
 
-  // 📦 Open Hive box for storing user data locally
+  // Open Hive box for UserModel
   final userBox = await Hive.openBox<UserModel>('users');
   sl.registerLazySingleton<Box<UserModel>>(() => userBox);
 
-  // 💾 Local data source (Hive)
+  // Local data source
   sl.registerLazySingleton<UserLocalDataSource>(
         () => UserLocalDataSourceImpl(sl()),
   );
 
-  // 🌐 Dio client for making HTTP requests
-  sl.registerLazySingleton<Dio>(() => Dio());
+  // Dio client with increased timeouts
+  sl.registerLazySingleton<Dio>(() {
+    final dio = Dio();
+    dio.options
+      ..connectTimeout = const Duration(seconds: 30)
+      ..receiveTimeout = const Duration(seconds: 30);
+    return dio;
+  });
 
-  // 🌍 API client wrapper over Dio
+  // API client
   sl.registerLazySingleton<ApiClient>(() => ApiClient(sl()));
 
-  // 🔌 Remote data source (API calls for login/register)
+  // Remote data source
   sl.registerLazySingleton<UserRemoteDataSource>(
         () => UserRemoteDataSourceImpl(sl()),
   );
 
-  // 📚 Repository combining remote and local sources
+  // Repository
   sl.registerLazySingleton<UserRepository>(
         () => UserRepositoryImpl(
       remoteDataSource: sl(),
@@ -48,11 +51,11 @@ Future<void> setupServiceLocator() async {
     ),
   );
 
-  // ✅ Use cases
+  // Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
 
-  // 🧠 BLoC for Auth
+  // BLoC
   sl.registerFactory(() => AuthBloc(
     loginUseCase: sl(),
     registerUseCase: sl(),

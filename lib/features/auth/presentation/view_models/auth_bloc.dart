@@ -26,7 +26,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onLoginRequested(LoginRequested event, Emitter<AuthState> emit) async {
     emit(const AuthLoading());
     try {
-      final User? user = await loginUseCase(event.username, event.password);
+      final User? user = await loginUseCase(event.email, event.password); // 👈 email instead of username
       if (user != null) {
         final box = Hive.box('profileInstalled');
         await box.put('loginTime', DateTime.now().toIso8601String());
@@ -39,7 +39,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
         emit(AuthSuccess(user));
       } else {
-        emit(const AuthFailure('Invalid username or password'));
+        emit(const AuthFailure('Invalid email or password')); // 👈 updated message
       }
     } catch (e) {
       emit(AuthFailure(e.toString()));

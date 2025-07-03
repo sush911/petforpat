@@ -18,18 +18,18 @@ class UserModel extends HiveObject {
   final String email;
 
   @HiveField(4)
-  final String token;
+  final String? token;   // nullable
 
   @HiveField(5)
-  final String password;
+  final String? password; // nullable
 
   UserModel({
     required this.id,
     required this.name,
     required this.username,
     required this.email,
-    required this.token,
-    required this.password,
+    this.token,
+    this.password,
   });
 
   /// Convert domain entity (User) to UserModel
@@ -40,7 +40,7 @@ class UserModel extends HiveObject {
       username: user.username,
       email: user.email,
       token: user.token,
-      password: '', // Password is not stored in domain entity
+      password: null, // Password isn't stored in the domain model
     );
   }
 
@@ -51,7 +51,7 @@ class UserModel extends HiveObject {
       name: name,
       username: username,
       email: email,
-      token: token,
+      token: token ?? '',
     );
   }
 
@@ -62,8 +62,8 @@ class UserModel extends HiveObject {
       name: json['name'] ?? '',
       username: json['username'] ?? '',
       email: json['email'] ?? '',
-      token: json['token'] ?? '',
-      password: '', // Password usually not returned from backend
+      token: json['token'],
+      password: null, // Not expected from backend
     );
   }
 

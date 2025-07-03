@@ -1,5 +1,5 @@
 import 'package:petforpat/core/network/api_client.dart';
-import '../../models/user_model.dart';
+import 'package:petforpat/features/auth/data/models/user_model.dart';
 
 abstract class UserRemoteDataSource {
   Future<UserModel> login(String email, String password);
@@ -14,7 +14,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   @override
   Future<UserModel> login(String email, String password) async {
     final response = await apiClient.post('/login', {
-      'email': email,
+      'email': email, // ✅ Changed from 'username' to 'email'
       'password': password,
     });
 

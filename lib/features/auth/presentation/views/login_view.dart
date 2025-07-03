@@ -16,7 +16,7 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _passwordVisible = false;
 
@@ -53,16 +53,27 @@ class _LoginViewState extends State<LoginView> {
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.85),
                       borderRadius: BorderRadius.circular(20),
-                      boxShadow: [BoxShadow(color: Colors.black.withAlpha(31), blurRadius: 12, offset: const Offset(0, 6))],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(31),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
+                        )
+                      ],
                       border: Border.all(color: Colors.grey.shade300, width: 1.5),
                     ),
                     child: Form(
                       key: _formKey,
                       child: Column(
                         children: [
-                          const Center(child: Text('Welcome Back', style: TextStyle(fontFamily: 'Roboto', fontSize: 28))),
+                          const Center(
+                            child: Text(
+                              'Welcome Back',
+                              style: TextStyle(fontFamily: 'Roboto', fontSize: 28),
+                            ),
+                          ),
                           const SizedBox(height: 40),
-                          _buildUsernameField(),
+                          _buildEmailField(),
                           const SizedBox(height: 20),
                           _buildPasswordField(),
                           const SizedBox(height: 30),
@@ -86,12 +97,12 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Widget _buildUsernameField() => Theme(
+  Widget _buildEmailField() => Theme(
     data: getApplicationTheme(),
     child: TextFormField(
-      controller: _usernameController,
-      decoration: const InputDecoration(labelText: 'Username', border: OutlineInputBorder()),
-      validator: (v) => v == null || v.isEmpty ? 'Enter username' : null,
+      controller: _emailController,
+      decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
+      validator: (v) => v == null || v.isEmpty ? 'Enter email' : null,
     ),
   );
 
@@ -116,8 +127,13 @@ class _LoginViewState extends State<LoginView> {
     width: double.infinity,
     child: ElevatedButton(
       onPressed: state is AuthLoading ? null : _onLoginPressed,
-      style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: Colors.blue.withOpacity(0.9)),
-      child: state is AuthLoading ? const CircularProgressIndicator(color: Colors.white) : const Text('Login', style: TextStyle(color: Colors.white, fontFamily: 'Roboto')),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        backgroundColor: Colors.blue.withOpacity(0.9),
+      ),
+      child: state is AuthLoading
+          ? const CircularProgressIndicator(color: Colors.white)
+          : const Text('Login', style: TextStyle(color: Colors.white, fontFamily: 'Roboto')),
     ),
   );
 
@@ -128,7 +144,15 @@ class _LoginViewState extends State<LoginView> {
         const Text("Don't have an account? ", style: TextStyle(fontFamily: 'Robotoo')),
         GestureDetector(
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignUpView())),
-          child: const Text('Sign Up', style: TextStyle(fontFamily: 'Robotoo', color: Colors.blue, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
+          child: const Text(
+            'Sign Up',
+            style: TextStyle(
+              fontFamily: 'Robotoo',
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline,
+            ),
+          ),
         ),
       ],
     ),
@@ -139,19 +163,22 @@ class _LoginViewState extends State<LoginView> {
       SocialButton(
         icon: Image.asset('assets/logo/fb.png', width: 28, height: 28),
         text: 'Sign up with Facebook',
-        onPressed: () {/* TODO: */},
+        onPressed: () {},
       ),
       const SizedBox(height: 15),
       SocialButton(
         icon: Image.asset('assets/logo/g.png', width: 28, height: 28),
         text: 'Sign up with Google',
-        onPressed: () {/* TODO: */},
+        onPressed: () {},
       ),
     ],
   );
 
   void _onLoginPressed() {
     if (!_formKey.currentState!.validate()) return;
-    context.read<AuthBloc>().add(LoginRequested(_usernameController.text.trim(), _passwordController.text.trim()));
+    context.read<AuthBloc>().add(LoginRequested(
+      _emailController.text.trim(),
+      _passwordController.text.trim(),
+    ));
   }
 }
