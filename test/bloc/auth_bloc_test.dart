@@ -1,84 +1,112 @@
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_test/hive_test.dart';  // Use hive_test package to initialize Hive in memory
-
+import 'package:mockito/mockito.dart';
 import 'package:petforpat/features/auth/domain/entities/user.dart';
+import 'package:petforpat/features/auth/domain/entities/register_user.dart';
 import 'package:petforpat/features/auth/domain/usecases/login_usecase.dart';
 import 'package:petforpat/features/auth/domain/usecases/register_usecase.dart';
 
+import '../../lib/app/shared_pref/shared_pref_service.dart';
 import '../../lib/features/auth/presentation/view_models/auth_bloc.dart';
-;
 
-// Mock classes
+// Mock classes using Mockito
 class MockLoginUseCase extends Mock implements LoginUseCase {}
 class MockRegisterUseCase extends Mock implements RegisterUseCase {}
+class MockSharedPrefService extends Mock implements SharedPrefService {}
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
-
-  late AuthBloc authBloc;
   late MockLoginUseCase mockLoginUseCase;
   late MockRegisterUseCase mockRegisterUseCase;
-  late Box box;
+  late MockSharedPrefService mockSharedPrefService;
+  late AuthBloc authBloc;
 
-  setUp(() async {
-    // Initialize Hive in memory before each test
-    await setUpTestHive();
-
-    box = await Hive.openBox('profileInstalled');
-
+  setUp(() {
     mockLoginUseCase = MockLoginUseCase();
     mockRegisterUseCase = MockRegisterUseCase();
-
+    mockSharedPrefService = MockSharedPrefService();
     authBloc = AuthBloc(
       loginUseCase: mockLoginUseCase,
       registerUseCase: mockRegisterUseCase,
-      profileBox: box,  // Inject in-memory box
     );
   });
 
-  tearDown(() async {
-    await box.close();
-    await tearDownTestHive();
+  tearDown(() {
+    authBloc.close();
   });
 
-  group('AuthBloc login tests', () {
-    final testUser = User(
-      id: '1',
-      name: 'Test User',
-      username: 'testuser',
-      email: 'test@example.com',
-      token: 'abc123token',
-    );
+  group('AuthBloc Tests', () {
+    // Test: Successful Login
+    test('emits AuthLoading and AuthSuccess on successful login', () async {
+      final user = User(id: '1', name: 'John Doe', username: 'john_doe', email: 'john@example.com', token: 'token');
 
-    test('emits [AuthLoading, AuthSuccess] when login succeeds', () async {
-      when(() => mockLoginUseCase.call('test@example.com', 'password'))
-          .thenAnswer((_) async => testUser);
+      // Correctly mock the loginUseCase to return a Future<User?> object
+      when(mockLoginUseCase('john@example.com', 'password'))
+          .thenAnswer((_) async => user);
 
-      // Listen for emitted states
-      final expectedStates = [
-        const AuthLoading(),
-        AuthSuccess(testUser),
+      final expected = [
+        AuthLoading(),
+        AuthSuccess(user),
       ];
 
-      expectLater(authBloc.stream, emitsInOrder(expectedStates));
+      // Act & Assert
+      expectLater(authBloc.stream, emitsInOrder(expected));
 
-      authBloc.add(const LoginRequested('test@example.com', 'password'));
+      // Trigger event
+      authBloc.add(LoginRequested('john@example.com', 'password'));
     });
 
-    test('emits [AuthLoading, AuthFailure] when login fails', () async {
-      when(() => mockLoginUseCase.call('test@example.com', 'wrongpassword'))
-          .thenAnswer((_) async => null);
+    // Test: Failed Login
+    test('emits AuthLoading and AuthFailure on login failure', () async {
+      when(mockLoginUseCase('john@example.com', 'wrong_password'))
+          .thenThrow(Exception('Login failed'));
 
-      final expectedStates = [
-        const AuthLoading(),
-        const AuthFailure('Invalid email or password'),
+      final expected = [
+        AuthLoading(),
+        AuthFailure('Login failed'),
       ];
 
-      expectLater(authBloc.stream, emitsInOrder(expectedStates));
+      // Act & Assert
+      expectLater(authBloc.stream, emitsInOrder(expected));
 
-      authBloc.add(const LoginRequested('test@example.com', 'wrongpassword'));
+      // Trigger event
+      authBloc.add(LoginRequested('john@example.com', 'wrong_password'));
+    });
+
+    // Test: Successful Registration
+    test('emits AuthLoading and RegisterSuccess on successful registration', () async {
+      final registerUser = RegisterUser(username: 'john_doe', email: 'john@example.com', password: 'password');
+
+      // Correctly mock registerUseCase
+      when(mockRegisterUseCase(registerUser)).thenAnswer((_) async => {});
+
+      final expected = [
+        AuthLoading(),
+        RegisterSuccess(),
+      ];
+
+      // Act & Assert
+      expectLater(authBloc.stream, emitsInOrder(expected));
+
+      // Trigger event
+      authBloc.add(RegisterRequested(registerUser));
+    });
+
+    // Test: Failed Registration
+    test('emits AuthLoading and AuthFailure on registration failure', () async {
+      final registerUser = RegisterUser(username: 'john_doe', email: 'john@example.com', password: 'password');
+
+      when(mockRegisterUseCase(registerUser)).thenThrow(Exception('Registration failed'));
+
+      final expected = [
+        AuthLoading(),
+        AuthFailure('Registration failed'),
+      ];
+
+      // Act & Assert
+      expectLater(authBloc.stream, emitsInOrder(expected));
+
+      // Trigger event
+      authBloc.add(RegisterRequested(registerUser));
     });
   });
 }

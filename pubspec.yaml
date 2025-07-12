@@ -79,6 +79,7 @@ dev_dependencies:
   mocktail: ^1.0.0
   mockito: ^5.4.5
   hive_test: ^1.0.0
+  test_cov_console: ^0.2.2
 
 flutter:
   uses-material-design: true
@@ -100,4 +101,3 @@ flutter:
     - family: OpenSans
       fonts:
         - asset: assets/fonts/opensansmedium.ttf
-
