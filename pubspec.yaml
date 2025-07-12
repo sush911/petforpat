@@ -77,7 +77,9 @@ dev_dependencies:
   # Testing
   bloc_test: ^9.1.4
   mocktail: ^1.0.0
-  mockito: 5.4.5
+  mockito: ^5.4.5
+  hive_test: ^1.0.0
+
 flutter:
   uses-material-design: true
 
