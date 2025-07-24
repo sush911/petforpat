@@ -1,35 +1,27 @@
-// lib/features/auth/data/models/user_model.dart
-class UserModel {
-  final String id;
-  final String username;
-  final String email;
-  final String firstName;
-  final String lastName;
-  final String phoneNumber;
-  final String address;
-  final String profileImage;
+import 'package:petforpat/features/auth/domain/entities/user_entity.dart';
 
-  UserModel({
-    required this.id,
-    required this.username,
-    required this.email,
-    required this.firstName,
-    required this.lastName,
-    required this.phoneNumber,
-    required this.address,
-    required this.profileImage,
-  });
+class UserModel extends UserEntity {
+UserModel({
+required super.id,
+required super.username,
+required super.email,
+required super.firstName,
+required super.lastName,
+required super.phoneNumber, // should be a String
+required super.address,
+super.profileImage,
+});
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel(
-      id: json['_id'] ?? '',
-      username: json['username'] ?? '',
-      email: json['email'] ?? '',
-      firstName: json['firstName'] ?? '',
-      lastName: json['lastName'] ?? '',
-      phoneNumber: json['phoneNumber'] ?? '',
-      address: json['address'] ?? '',
-      profileImage: json['profileImage'] ?? '',
-    );
-  }
+factory UserModel.fromJson(Map<String, dynamic> json) {
+return UserModel(
+id: json['_id'] as String,
+username: json['username'] as String,
+email: json['email'] as String,
+firstName: json['firstName'] as String,
+lastName: json['lastName'] as String,
+phoneNumber: json['phoneNumber'].toString(), // ✅ Force to string
+address: json['address'] as String,
+profileImage: json['profileImage'] as String?,
+);
+}
 }

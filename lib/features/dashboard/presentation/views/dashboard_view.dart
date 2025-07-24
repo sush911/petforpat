@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:petforpat/features/auth/presentation/views/profile_view.dart';
 import 'package:petforpat/features/favorite/presentation/views/favorite_screen.dart';
 import 'package:petforpat/features/notification/presentation/views/notification.dart';
 import 'dashboard_home.dart';
@@ -24,9 +25,9 @@ class _DashboardViewState extends State<DashboardView> {
     super.initState();
     _screens = [
       DashboardHome(onPetTap: () => _onTabTapped(1)),
-      const DashboardHome(),
       const FavoriteScreen(),
       const NotificationScreen(),
+      const ProfileView(),
     ];
   }
 
@@ -50,10 +51,22 @@ class _DashboardViewState extends State<DashboardView> {
           backgroundColor: Colors.teal[400],
           type: BottomNavigationBarType.fixed,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'favorite'),
-            BottomNavigationBarItem(icon: Icon(Icons.notification_add), label: 'Favourite'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.favorite),
+              label: 'Favorite',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.notifications),
+              label: 'Notification',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
           ],
         ),
       ),

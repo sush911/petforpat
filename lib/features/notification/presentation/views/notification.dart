@@ -5,6 +5,6 @@ class NotificationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text("Pet Screen (Coming Soon)"));
+    return const Center(child: Text("Notification)"));
   }
 }
