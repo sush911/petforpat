@@ -111,7 +111,7 @@ class _DashboardHomeState extends State<DashboardHome> {
     return TextField(
       onChanged: (value) => setState(() => searchQuery = value),
       decoration: InputDecoration(
-        hintText: 'Search pets...',
+        hintText: 'Search notification...',
         prefixIcon: const Icon(Icons.search, color: Colors.teal),
         filled: true,
         fillColor: Colors.orangeAccent[100],
@@ -153,7 +153,7 @@ class _DashboardHomeState extends State<DashboardHome> {
           ),
           const SizedBox(height: 8),
           Text(
-            'No pets found',
+            'No notification found',
             style: TextStyle(
               color: Colors.purple[800],
               fontSize: 18,

@@ -25,15 +25,16 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    // Always navigate to LoginView after 2 seconds
+    // Navigate after 3 seconds
     Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginView()),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginView()),
+        );
+      }
     });
+
   }
 
   @override
@@ -47,6 +48,7 @@ class _SplashScreenState extends State<SplashScreen>
     final screen = MediaQuery.of(context).size;
     final isTablet = screen.width >= 600;
 
+    // Limit sizes to keep things proportionate
     final logoSize = screen.width.clamp(150.0, 350.0);
     final fontSize = isTablet ? 36.0 : 28.0;
 
@@ -67,6 +69,7 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // 🐾 Logo with max width constraint
                 ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: logoSize,
@@ -77,6 +80,8 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 24),
+
+                // 📝 App title
                 Text(
                   'Pet Adoption',
                   textAlign: TextAlign.center,
@@ -95,6 +100,8 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 40),
+
+                // ⏳ Spinner
                 const CircularProgressIndicator(
                   color: Colors.white,
                   strokeWidth: 4,

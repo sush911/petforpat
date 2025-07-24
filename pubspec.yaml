@@ -69,6 +69,7 @@ dev_dependencies:
 
   # Existing dev dependencies
   flutter_lints: ^5.0.0
+  flutter_dotenv: ^5.0.2
 
   # New dev dependencies
   # Code Generation

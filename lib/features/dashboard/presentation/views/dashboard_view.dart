@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:petforpat/features/chat/presentation/views/chat_screen.dart';
-import 'package:petforpat/features/pets/presentation/views/pet_screen.dart';
-import 'package:petforpat/features/profile/presentation/views/profile_screen.dart';
+import 'package:petforpat/features/favorite/presentation/views/favorite_screen.dart';
+import 'package:petforpat/features/notification/presentation/views/notification.dart';
 import 'dashboard_home.dart';
 
 class DashboardView extends StatefulWidget {
@@ -25,9 +24,9 @@ class _DashboardViewState extends State<DashboardView> {
     super.initState();
     _screens = [
       DashboardHome(onPetTap: () => _onTabTapped(1)),
-      const PetScreen(),
-      const ChatScreen(),
-      const ProfileScreen(),
+      const DashboardHome(),
+      const FavoriteScreen(),
+      const NotificationScreen(),
     ];
   }
 
@@ -52,8 +51,8 @@ class _DashboardViewState extends State<DashboardView> {
           type: BottomNavigationBarType.fixed,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.pets), label: 'Pet'),
-            BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'chat'),
+            BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'favorite'),
+            BottomNavigationBarItem(icon: Icon(Icons.notification_add), label: 'Favourite'),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
         ),
