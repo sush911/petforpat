@@ -4,7 +4,7 @@ class UserEntity {
   final String email;
   final String firstName;
   final String lastName;
-  final String phoneNumber; // <-- not int!
+  final String phoneNumber;
   final String address;
   final String? profileImage;
 
@@ -18,4 +18,26 @@ class UserEntity {
     required this.address,
     this.profileImage,
   });
+
+  UserEntity copyWith({
+    String? id,
+    String? username,
+    String? email,
+    String? firstName,
+    String? lastName,
+    String? phoneNumber,
+    String? address,
+    String? profileImage,
+  }) {
+    return UserEntity(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      address: address ?? this.address,
+      profileImage: profileImage ?? this.profileImage,
+    );
+  }
 }

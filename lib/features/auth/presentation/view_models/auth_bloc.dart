@@ -4,6 +4,7 @@ import 'auth_event.dart';
 import 'auth_state.dart';
 import 'package:petforpat/features/auth/domain/repositories/auth_repository.dart';
 import 'package:petforpat/features/auth/domain/usecases/update_profile_usecase.dart';
+import 'package:petforpat/features/auth/domain/entities/user_entity.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository authRepository;
@@ -26,7 +27,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LoginRequested>((event, emit) async {
       emit(AuthLoading());
       try {
-        final token = await authRepository.login(event.username, event.password);
+        await authRepository.login(event.username, event.password);
         emit(AuthAuthenticated());
       } catch (e) {
         emit(AuthError(message: e.toString()));
@@ -37,7 +38,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthUpdatingProfile());
       try {
         final user = await updateProfileUseCase(event.data, event.image);
-        emit(AuthProfileUpdated(user));
+        emit(AuthProfileUpdated(_withFullImageUrl(user)));
       } catch (e) {
         emit(AuthError(message: e.toString()));
       }
@@ -46,16 +47,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<FetchProfileEvent>((event, emit) async {
       emit(AuthLoading());
       try {
-        final user = await authRepository.getCurrentUser(); // ✅ Ensure this exists
-        emit(AuthProfileUpdated(user));
+        final user = await authRepository.getCurrentUser();
+        emit(AuthProfileUpdated(_withFullImageUrl(user)));
       } catch (e) {
         emit(AuthError(message: e.toString()));
       }
     });
 
     on<LogoutEvent>((event, emit) async {
-      // Optional: clear token/session info
       emit(AuthInitial());
     });
+  }
+
+  UserEntity _withFullImageUrl(UserEntity user) {
+    if (user.profileImage != null && !user.profileImage!.startsWith('http')) {
+      const baseUrl = 'http://192.168.10.70:3001';
+      return user.copyWith(profileImage: '$baseUrl${user.profileImage}');
+    }
+    return user;
   }
 }

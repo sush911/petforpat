@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:petforpat/features/auth/presentation/views/login_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -25,16 +25,22 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    // Navigate after 3 seconds
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const LoginView()),
-        );
-      }
-    });
+    _navigateAfterDelay();
+  }
 
+  Future<void> _navigateAfterDelay() async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    if (!mounted) return;
+
+    if (token != null && token.isNotEmpty) {
+      Navigator.pushReplacementNamed(context, '/dashboard home'); // or '/dashboard'
+    } else {
+      Navigator.pushReplacementNamed(context, '/login');
+    }
   }
 
   @override
@@ -48,7 +54,6 @@ class _SplashScreenState extends State<SplashScreen>
     final screen = MediaQuery.of(context).size;
     final isTablet = screen.width >= 600;
 
-    // Limit sizes to keep things proportionate
     final logoSize = screen.width.clamp(150.0, 350.0);
     final fontSize = isTablet ? 36.0 : 28.0;
 
@@ -69,7 +74,6 @@ class _SplashScreenState extends State<SplashScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 🐾 Logo with max width constraint
                 ConstrainedBox(
                   constraints: BoxConstraints(
                     maxWidth: logoSize,
@@ -80,8 +84,6 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                // 📝 App title
                 Text(
                   'Pet Adoption',
                   textAlign: TextAlign.center,
@@ -100,8 +102,6 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // ⏳ Spinner
                 const CircularProgressIndicator(
                   color: Colors.white,
                   strokeWidth: 4,

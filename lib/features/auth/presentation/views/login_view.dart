@@ -36,7 +36,8 @@ class _LoginViewState extends State<LoginView> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
-    context.read<AuthBloc>().add(LoginRequested(username, password));
+    context.read<AuthBloc>().add(LoginRequested(username: username, password: password));
+
   }
 
   @override

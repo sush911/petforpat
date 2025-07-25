@@ -1,16 +1,19 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:petforpat/features/auth/data/models/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class AuthRemoteDataSource {
   Future<void> register(Map<String, dynamic> userData);
   Future<String> login(String username, String password);
   Future<UserModel> updateProfile(Map<String, dynamic> data, File? image);
   Future<UserModel> getCurrentUser();
+  Future<void> loadToken(); // Load token on app start
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final Dio dio;
+  static const String _tokenKey = 'auth_token';
 
   AuthRemoteDataSourceImpl(this.dio);
 
@@ -18,21 +21,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<void> register(Map<String, dynamic> userData) async {
     try {
       print('📤 Sending register request: $userData');
-
-      // If you're uploading an image, use FormData instead
-      FormData formData = FormData.fromMap({
-        ...userData,
-        if (userData['profileImage'] != null && userData['profileImage'] is File)
-          'profileImage': await MultipartFile.fromFile(
-            (userData['profileImage'] as File).path,
-            filename: 'profile.jpg',
-          ),
-      });
-
-      final response = await dio.post('/users/register', data: formData);
-
+      final response = await dio.post('/users/register', data: userData);
       print('📥 Register response: ${response.data}');
-
       if (response.statusCode != 200 && response.statusCode != 201) {
         final errorMessage = response.data['message'] ?? 'Registration failed';
         throw Exception(errorMessage);
@@ -52,17 +42,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   Future<String> login(String username, String password) async {
     try {
       print('📤 Logging in with username: $username');
-
       final response = await dio.post('/users/login', data: {
         'username': username,
         'password': password,
       });
-
       print('📥 Login response: ${response.data}');
-
       if (response.statusCode == 200) {
         final token = response.data['token'];
         if (token != null) {
+          dio.options.headers['Authorization'] = 'Bearer $token';
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(_tokenKey, token);
           return token;
         } else {
           throw Exception('Invalid login response: token not found');
@@ -95,7 +85,11 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       final response = await dio.put('/users/profile', data: formData);
 
-      return UserModel.fromJson(response.data);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return UserModel.fromJson(response.data);
+      } else {
+        throw Exception(response.data['message'] ?? 'Update profile failed');
+      }
     } on DioException catch (e) {
       if (e.response != null) {
         throw Exception(e.response?.data['error'] ?? 'Update profile failed');
@@ -120,6 +114,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       } else {
         throw Exception('Network error: ${e.message}');
       }
+    }
+  }
+
+  @override
+  Future<void> loadToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString(_tokenKey);
+
+    if (token != null) {
+      dio.options.headers['Authorization'] = 'Bearer $token';
+      print('✅ Auth token loaded and set: $token');
+    } else {
+      print('⚠️ No token found in storage.');
     }
   }
 }

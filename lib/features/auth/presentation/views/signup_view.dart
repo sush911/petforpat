@@ -49,7 +49,8 @@ class _SignupViewState extends State<SignupView> {
         "address": _addressController.text.trim(),
       };
 
-      context.read<AuthBloc>().add(RegisterRequested(userData));
+      context.read<AuthBloc>().add(RegisterRequested(userData: userData));
+
     }
   }
 

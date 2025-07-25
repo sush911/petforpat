@@ -1,3 +1,4 @@
+// auth_state.dart
 import 'package:equatable/equatable.dart';
 import 'package:petforpat/features/auth/domain/entities/user_entity.dart';
 
@@ -26,7 +27,7 @@ class AuthProfileUpdated extends AuthState {
 class AuthError extends AuthState {
   final String message;
 
-  AuthError({required this.message}); // ✅ named parameter added
+  AuthError({required this.message});
 
   @override
   List<Object?> get props => [message];

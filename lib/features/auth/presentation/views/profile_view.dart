@@ -22,24 +22,28 @@ class _ProfileViewState extends State<ProfileView> {
   late TextEditingController addressController;
 
   File? _profileImage;
+  bool _controllersInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    final state = context.read<AuthBloc>().state;
-    if (state is AuthProfileUpdated) {
-      _initializeControllers(state.user);
-    } else {
-      // You might want to load user from repository/local here if needed
-    }
+    usernameController = TextEditingController();
+    firstNameController = TextEditingController();
+    lastNameController = TextEditingController();
+    phoneController = TextEditingController();
+    addressController = TextEditingController();
+    context.read<AuthBloc>().add(FetchProfileEvent());
   }
 
   void _initializeControllers(UserEntity user) {
-    usernameController = TextEditingController(text: user.username);
-    firstNameController = TextEditingController(text: user.firstName);
-    lastNameController = TextEditingController(text: user.lastName);
-    phoneController = TextEditingController(text: user.phoneNumber);
-    addressController = TextEditingController(text: user.address);
+    if (!_controllersInitialized) {
+      usernameController.text = user.username;
+      firstNameController.text = user.firstName;
+      lastNameController.text = user.lastName;
+      phoneController.text = user.phoneNumber;
+      addressController.text = user.address;
+      _controllersInitialized = true;
+    }
   }
 
   Future<void> _pickImage() async {
@@ -59,7 +63,6 @@ class _ProfileViewState extends State<ProfileView> {
       'phoneNumber': phoneController.text,
       'address': addressController.text,
     };
-
     context.read<AuthBloc>().add(UpdateProfileEvent(data: data, image: _profileImage));
   }
 
@@ -71,8 +74,19 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFE6F0FA),
       appBar: AppBar(
-        title: const Text('My Profile'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'My Profile',
+          style: TextStyle(
+            fontFamily: 'RobotoSemiBold',
+            fontSize: 22,
+            color: Colors.black87,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: Colors.black87),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -88,64 +102,119 @@ class _ProfileViewState extends State<ProfileView> {
 
           if (state is AuthProfileUpdated) {
             final user = state.user;
-
-            if (usernameController.text.isEmpty) {
-              _initializeControllers(user);
-            }
+            _initializeControllers(user);
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(24.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   GestureDetector(
                     onTap: _pickImage,
                     child: CircleAvatar(
-                      radius: 50,
+                      radius: 60,
                       backgroundImage: _profileImage != null
                           ? FileImage(_profileImage!)
                           : (user.profileImage != null
                           ? NetworkImage(user.profileImage!)
-                          : const AssetImage('assets/images/default_profile.png')) as ImageProvider,
+                          : const AssetImage('assets/images/default_profile.png'))
+                      as ImageProvider,
                       child: Align(
                         alignment: Alignment.bottomRight,
                         child: CircleAvatar(
-                          radius: 15,
+                          radius: 18,
                           backgroundColor: Colors.white,
-                          child: const Icon(Icons.edit, size: 18),
+                          child: const Icon(Icons.edit, size: 20),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 30),
                   _buildTextField('Username', usernameController),
-                  _buildTextField('First Name', firstNameController),
-                  _buildTextField('Last Name', lastNameController),
-                  _buildTextField('Phone Number', phoneController),
-                  _buildTextField('Address', addressController),
                   const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _saveProfile,
-                    child: const Text('Save Changes'),
+                  _buildTextField('First Name', firstNameController),
+                  const SizedBox(height: 20),
+                  _buildTextField('Last Name', lastNameController),
+                  const SizedBox(height: 20),
+                  _buildTextField('Phone Number', phoneController),
+                  const SizedBox(height: 20),
+                  _buildTextField('Address', addressController),
+                  const SizedBox(height: 24),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 24.0),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            backgroundColor: const Color(0xFF3B82F6),
+                          ),
+                          onPressed: _saveProfile,
+                          child: const Text(
+                            'Save Changes',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontFamily: 'RobotoSemiBold',
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
             );
           }
 
-          return const Center(child: Text("Loading profile..."));
+          if (state is AuthError) {
+            return Center(
+              child: Text(
+                '❌ ${state.message}',
+                style: const TextStyle(fontFamily: 'RobotoSemiBold'),
+              ),
+            );
+          }
+
+          return const Center(
+            child: Text(
+              "Loading profile...",
+              style: TextStyle(fontFamily: 'RobotoSemiBold'),
+            ),
+          );
         },
       ),
     );
   }
 
   Widget _buildTextField(String label, TextEditingController controller) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: TextField(
         controller: controller,
+        style: const TextStyle(fontFamily: 'RobotoSemiBold', fontSize: 15),
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
+          labelStyle: const TextStyle(fontSize: 14),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
     );

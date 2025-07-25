@@ -1,3 +1,4 @@
+// auth_event.dart
 import 'dart:io';
 import 'package:equatable/equatable.dart';
 
@@ -9,7 +10,7 @@ abstract class AuthEvent extends Equatable {
 class RegisterRequested extends AuthEvent {
   final Map<String, dynamic> userData;
 
-  RegisterRequested(this.userData);
+  RegisterRequested({required this.userData});
 
   @override
   List<Object?> get props => [userData];
@@ -19,7 +20,7 @@ class LoginRequested extends AuthEvent {
   final String username;
   final String password;
 
-  LoginRequested(this.username, this.password);
+  LoginRequested({required this.username, required this.password});
 
   @override
   List<Object?> get props => [username, password];
@@ -37,4 +38,4 @@ class UpdateProfileEvent extends AuthEvent {
 
 class LogoutEvent extends AuthEvent {}
 
-class FetchProfileEvent extends AuthEvent {} // ✅ Added
+class FetchProfileEvent extends AuthEvent {}
