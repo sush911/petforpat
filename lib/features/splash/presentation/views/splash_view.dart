@@ -25,7 +25,10 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    _navigateAfterDelay();
+    // ✅ Call navigation after build is fully complete
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _navigateAfterDelay();
+    });
   }
 
   Future<void> _navigateAfterDelay() async {
@@ -37,9 +40,9 @@ class _SplashScreenState extends State<SplashScreen>
     if (!mounted) return;
 
     if (token != null && token.isNotEmpty) {
-      Navigator.pushReplacementNamed(context, '/dashboard home'); // or '/dashboard'
+      Navigator.of(context).pushReplacementNamed('/dashboard home');
     } else {
-      Navigator.pushReplacementNamed(context, '/login');
+      Navigator.of(context).pushReplacementNamed('/login');
     }
   }
 
@@ -53,7 +56,6 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     final screen = MediaQuery.of(context).size;
     final isTablet = screen.width >= 600;
-
     final logoSize = screen.width.clamp(150.0, 350.0);
     final fontSize = isTablet ? 36.0 : 28.0;
 

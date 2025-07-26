@@ -8,4 +8,5 @@ abstract class AuthRepository {
   Future<String> login(String username, String password);
   Future<UserEntity> updateProfile(Map<String, dynamic> data, File? image);
   Future<UserEntity> getCurrentUser();
+  Future<void> clearToken();
 }

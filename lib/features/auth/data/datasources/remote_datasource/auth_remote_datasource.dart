@@ -8,7 +8,8 @@ abstract class AuthRemoteDataSource {
   Future<String> login(String username, String password);
   Future<UserModel> updateProfile(Map<String, dynamic> data, File? image);
   Future<UserModel> getCurrentUser();
-  Future<void> loadToken(); // Load token on app start
+  Future<void> loadToken();   // Load token on app start
+  Future<void> clearToken(); // ✅ Clear token on logout
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -128,5 +129,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } else {
       print('⚠️ No token found in storage.');
     }
+  }
+
+  @override
+  Future<void> clearToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
+    dio.options.headers.remove('Authorization');
+    print('🚪 Token cleared from storage and Dio headers.');
   }
 }

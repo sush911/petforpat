@@ -68,129 +68,138 @@ class _ProfileViewState extends State<ProfileView> {
 
   void _logout() {
     context.read<AuthBloc>().add(LogoutEvent());
-    Navigator.of(context).pushReplacementNamed('/login');
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFE6F0FA),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          'My Profile',
-          style: TextStyle(
-            fontFamily: 'RobotoSemiBold',
-            fontSize: 22,
-            color: Colors.black87,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: Colors.black87),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-          )
-        ],
-      ),
-      body: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          if (state is AuthUpdatingProfile) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is AuthProfileUpdated) {
-            final user = state.user;
-            _initializeControllers(user);
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: CircleAvatar(
-                      radius: 60,
-                      backgroundImage: _profileImage != null
-                          ? FileImage(_profileImage!)
-                          : (user.profileImage != null
-                          ? NetworkImage(user.profileImage!)
-                          : const AssetImage('assets/images/default_profile.png'))
-                      as ImageProvider,
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: CircleAvatar(
-                          radius: 18,
-                          backgroundColor: Colors.white,
-                          child: const Icon(Icons.edit, size: 20),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  _buildTextField('Username', usernameController),
-                  const SizedBox(height: 20),
-                  _buildTextField('First Name', firstNameController),
-                  const SizedBox(height: 20),
-                  _buildTextField('Last Name', lastNameController),
-                  const SizedBox(height: 20),
-                  _buildTextField('Phone Number', phoneController),
-                  const SizedBox(height: 20),
-                  _buildTextField('Address', addressController),
-                  const SizedBox(height: 24),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 24.0),
-                    child: Align(
-                      alignment: Alignment.center,
-                      child: SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.7,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            backgroundColor: const Color(0xFF3B82F6),
-                          ),
-                          onPressed: _saveProfile,
-                          child: const Text(
-                            'Save Changes',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontFamily: 'RobotoSemiBold',
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (state is AuthError) {
-            return Center(
-              child: Text(
-                '❌ ${state.message}',
-                style: const TextStyle(fontFamily: 'RobotoSemiBold'),
-              ),
-            );
-          }
-
-          return const Center(
-            child: Text(
-              "Loading profile...",
-              style: TextStyle(fontFamily: 'RobotoSemiBold'),
+    return BlocListener<AuthBloc, AuthState>(
+      listenWhen: (previous, current) =>
+      current is AuthInitial, // only when logout happens
+      listener: (context, state) {
+        if (state is AuthInitial) {
+          Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFFE6F0FA),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text(
+            'My Profile',
+            style: TextStyle(
+              fontFamily: 'RobotoSemiBold',
+              fontSize: 22,
+              color: Colors.black87,
             ),
-          );
-        },
+          ),
+          iconTheme: const IconThemeData(color: Colors.black87),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: _logout,
+            )
+          ],
+        ),
+        body: BlocBuilder<AuthBloc, AuthState>(
+          builder: (context, state) {
+            if (state is AuthUpdatingProfile) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (state is AuthProfileUpdated) {
+              final user = state.user;
+              _initializeControllers(user);
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        radius: 60,
+                        backgroundImage: _profileImage != null
+                            ? FileImage(_profileImage!)
+                            : (user.profileImage != null
+                            ? NetworkImage(user.profileImage!)
+                            : const AssetImage('assets/images/default_profile.png'))
+                        as ImageProvider,
+                        child: Align(
+                          alignment: Alignment.bottomRight,
+                          child: CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Colors.white,
+                            child: const Icon(Icons.edit, size: 20),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    _buildTextField('Username', usernameController),
+                    const SizedBox(height: 20),
+                    _buildTextField('First Name', firstNameController),
+                    const SizedBox(height: 20),
+                    _buildTextField('Last Name', lastNameController),
+                    const SizedBox(height: 20),
+                    _buildTextField('Phone Number', phoneController),
+                    const SizedBox(height: 20),
+                    _buildTextField('Address', addressController),
+                    const SizedBox(height: 24),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 24.0),
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              backgroundColor: const Color(0xFF3B82F6),
+                            ),
+                            onPressed: _saveProfile,
+                            child: const Text(
+                              'Save Changes',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontFamily: 'RobotoSemiBold',
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            if (state is AuthError) {
+              return Center(
+                child: Text(
+                  '❌ ${state.message}',
+                  style: const TextStyle(fontFamily: 'RobotoSemiBold'),
+                ),
+              );
+            }
+
+            return const Center(
+              child: Text(
+                "Loading profile...",
+                style: TextStyle(fontFamily: 'RobotoSemiBold'),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
+
 
   Widget _buildTextField(String label, TextEditingController controller) {
     return Container(

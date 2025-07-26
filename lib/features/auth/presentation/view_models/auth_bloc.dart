@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 import 'package:petforpat/features/auth/domain/repositories/auth_repository.dart';
@@ -55,6 +56,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<LogoutEvent>((event, emit) async {
+      // ✅ Clear auth_token from shared preferences
+
+      // 🧼 Optional: Clear token from Dio headers
+      await authRepository.clearToken();
+
       emit(AuthInitial());
     });
   }
