@@ -1,7 +1,12 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+
 import 'package:petforpat/features/auth/domain/entities/user_entity.dart';
 import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart';
 import 'package:petforpat/features/auth/presentation/view_models/auth_event.dart';
@@ -24,6 +29,9 @@ class _ProfileViewState extends State<ProfileView> {
   File? _profileImage;
   bool _controllersInitialized = false;
 
+  StreamSubscription<AccelerometerEvent>? _accelSubscription;
+  DateTime _lastShakeTime = DateTime.now();
+
   @override
   void initState() {
     super.initState();
@@ -32,7 +40,28 @@ class _ProfileViewState extends State<ProfileView> {
     lastNameController = TextEditingController();
     phoneController = TextEditingController();
     addressController = TextEditingController();
+
+    // Fetch profile
     context.read<AuthBloc>().add(FetchProfileEvent());
+
+    // Start shake detection
+    _accelSubscription = accelerometerEvents.listen((event) {
+      final acceleration = sqrt(
+        event.x * event.x + event.y * event.y + event.z * event.z,
+      );
+
+      // Typical shake threshold ~15, adjust as needed
+      if (acceleration > 15) {
+        final now = DateTime.now();
+        if (now.difference(_lastShakeTime).inMilliseconds > 1000) {
+          _lastShakeTime = now;
+          _logout();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("👋 Logged out via shake!")),
+          );
+        }
+      }
+    });
   }
 
   void _initializeControllers(UserEntity user) {
@@ -46,13 +75,41 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
-  Future<void> _pickImage() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+  Future<void> _pickImage(ImageSource source) async {
+    final picked = await ImagePicker().pickImage(source: source);
     if (picked != null) {
       setState(() {
         _profileImage = File(picked.path);
       });
     }
+  }
+
+  void _showImageSourceOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Take a Photo'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Choose from Gallery'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _saveProfile() {
@@ -73,8 +130,7 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listenWhen: (previous, current) =>
-      current is AuthInitial, // only when logout happens
+      listenWhen: (previous, current) => current is AuthInitial,
       listener: (context, state) {
         if (state is AuthInitial) {
           Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
@@ -117,7 +173,7 @@ class _ProfileViewState extends State<ProfileView> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     GestureDetector(
-                      onTap: _pickImage,
+                      onTap: _showImageSourceOptions,
                       child: CircleAvatar(
                         radius: 60,
                         backgroundImage: _profileImage != null
@@ -200,7 +256,6 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-
   Widget _buildTextField(String label, TextEditingController controller) {
     return Container(
       decoration: BoxDecoration(
@@ -236,6 +291,8 @@ class _ProfileViewState extends State<ProfileView> {
     lastNameController.dispose();
     phoneController.dispose();
     addressController.dispose();
+    _accelSubscription?.cancel();
     super.dispose();
   }
 }
+

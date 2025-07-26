@@ -16,6 +16,9 @@ dependencies:
   font_awesome_flutter: ^10.1.0
 
   # New dependencies
+  sensors_plus: ^4.0.0
+
+  #shake: ^1.0.0
   # State Management
   flutter_bloc: ^8.1.6
   bloc: ^8.1.4
