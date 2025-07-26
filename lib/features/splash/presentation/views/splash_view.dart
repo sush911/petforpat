@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:petforpat/features/splash/presentation/view_models/splash_cubit.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -8,42 +9,20 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeIn;
+  bool _hasNavigated = false;  // To prevent multiple navigation
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
-
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    // ✅ Call navigation after build is fully complete
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _navigateAfterDelay();
-    });
-  }
-
-  Future<void> _navigateAfterDelay() async {
-    await Future.delayed(const Duration(seconds: 2));
-
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
-
-    if (!mounted) return;
-
-    if (token != null && token.isNotEmpty) {
-      Navigator.of(context).pushReplacementNamed('/dashboard home');
-    } else {
-      Navigator.of(context).pushReplacementNamed('/login');
-    }
+    context.read<SplashCubit>().checkLoginStatus();
   }
 
   @override
@@ -73,42 +52,50 @@ class _SplashScreenState extends State<SplashScreen>
         child: SafeArea(
           child: FadeTransition(
             opacity: _fadeIn,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: logoSize,
+            child: BlocListener<SplashCubit, SplashState>(
+              listener: (context, state) async {
+                if (_hasNavigated) return;
+
+                if (state is SplashAuthenticated) {
+                  _hasNavigated = true;
+                  await Future.delayed(const Duration(seconds: 1));
+                  if (!mounted) return;
+                  Navigator.of(context).pushReplacementNamed('/dashboardHome');
+                } else if (state is SplashUnauthenticated) {
+                  _hasNavigated = true;
+                  await Future.delayed(const Duration(seconds: 2));
+                  if (!mounted) return;
+                  Navigator.of(context).pushReplacementNamed('/login');
+                }
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'PetForPat',
+                    style: TextStyle(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 2,
+                      shadows: const [
+                        Shadow(
+                          blurRadius: 10,
+                          color: Colors.black45,
+                          offset: Offset(3, 3),
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Image.asset(
-                    'assets/logo/pet.jpg',
-                    fit: BoxFit.contain,
+                  const SizedBox(height: 24),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: logoSize),
+                    child: Image.asset('assets/logo/pet.jpg', fit: BoxFit.contain),
                   ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Pet Adoption',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: 1.5,
-                    shadows: const [
-                      Shadow(
-                        blurRadius: 10,
-                        color: Colors.black45,
-                        offset: Offset(3, 3),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 40),
-                const CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 4,
-                ),
-              ],
+                  const SizedBox(height: 40),
+                  const CircularProgressIndicator(color: Colors.white, strokeWidth: 4),
+                ],
+              ),
             ),
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:petforpat/features/auth/presentation/views/profile_view.dart';
 import 'package:petforpat/features/favorite/presentation/views/favorite_screen.dart';
 import 'package:petforpat/features/notification/presentation/views/notification.dart';
+import 'package:petforpat/features/dashboard/domain/entities/pet_entity.dart';
 import 'dashboard_home.dart';
 
 class DashboardView extends StatefulWidget {
@@ -24,7 +25,12 @@ class _DashboardViewState extends State<DashboardView> {
   void initState() {
     super.initState();
     _screens = [
-      DashboardHome(onPetTap: () => _onTabTapped(1)),
+      DashboardHome(
+        onPetTap: (PetEntity pet) {
+          // You can handle the pet entity here if needed
+          _onTabTapped(1);
+        },
+      ),
       const FavoriteScreen(),
       const NotificationScreen(),
       const ProfileView(),

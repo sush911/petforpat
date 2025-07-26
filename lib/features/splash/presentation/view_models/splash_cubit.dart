@@ -9,10 +9,17 @@ class SplashCubit extends Cubit<SplashState> {
   SplashCubit(this.prefsHelper) : super(SplashInitial());
 
   Future<void> checkLoginStatus() async {
-    final token = await prefsHelper.getToken();
-    if (token != null && token.isNotEmpty) {
-      emit(SplashAuthenticated());
-    } else {
+    try {
+      final token = await prefsHelper.getToken();
+      print('[SplashCubit] Token: $token');
+
+      if (token != null && token.isNotEmpty) {
+        emit(SplashAuthenticated());
+      } else {
+        emit(SplashUnauthenticated());
+      }
+    } catch (e) {
+      print('[SplashCubit] Error: $e');
       emit(SplashUnauthenticated());
     }
   }
