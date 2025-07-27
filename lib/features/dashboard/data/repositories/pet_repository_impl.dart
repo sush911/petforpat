@@ -2,7 +2,6 @@ import 'package:petforpat/features/dashboard/data/datasources/local_datasource/p
 import 'package:petforpat/features/dashboard/data/datasources/remote_datasource/pet_remote_datasource.dart';
 import 'package:petforpat/features/dashboard/domain/entities/pet_entity.dart';
 import 'package:petforpat/features/dashboard/domain/repositories/pet_repository.dart';
-import 'package:petforpat/features/dashboard/data/models/pet_model.dart';
 
 class PetRepositoryImpl implements PetRepository {
   final PetRemoteDataSource remote;
@@ -13,12 +12,16 @@ class PetRepositoryImpl implements PetRepository {
   @override
   Future<List<PetEntity>> getPets({Map<String, dynamic>? filters}) async {
     try {
-      final List<PetModel> pets = await remote.fetchPets(filters: filters);
+      final pets = await remote.fetchPets(filters: filters);
+      print("🟢 Repository: Remote pets fetched: ${pets.length}");
       await local.cachePetList(pets);
-      return pets.map((pet) => pet.toEntity()).toList();
-    } catch (_) {
-      final List<PetModel> cachedPets = await local.getCachedPetList();
-      return cachedPets.map((pet) => pet.toEntity()).toList();
+      return pets.map((p) => p.toEntity()).toList();
+    } catch (e, stack) {
+      print("🔴 Repository: Remote fetch failed: $e");
+      print(stack);
+      final cached = await local.getCachedPetList();
+      print("📦 Repository: Fallback cached pets: ${cached.length}");
+      return cached.map((p) => p.toEntity()).toList();
     }
   }
 

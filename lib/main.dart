@@ -9,11 +9,17 @@ import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart'
 import 'package:petforpat/features/dashboard/presentation/view_models/dashboard_bloc.dart';
 import 'package:petforpat/features/splash/presentation/view_models/splash_cubit.dart';
 
+// ✅ Import the PetModel and its adapter
+import 'package:petforpat/features/dashboard/data/models/pet_model.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive (important if you use Hive anywhere)
+  // Initialize Hive
   await Hive.initFlutter();
+
+  // ✅ Register the adapter so Hive knows how to store PetModel
+  Hive.registerAdapter(PetModelAdapter());
 
   // Setup DI
   await setupServiceLocator();
@@ -34,5 +40,3 @@ void main() async {
     ),
   );
 }
-
-

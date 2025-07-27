@@ -35,6 +35,9 @@ class PetModel extends HiveObject {
   @HiveField(9)
   String ownerPhoneNumber;
 
+  @HiveField(10)
+  String description;
+
   PetModel({
     required this.id,
     required this.name,
@@ -46,25 +49,40 @@ class PetModel extends HiveObject {
     required this.imageUrl,
     required this.adopted,
     required this.ownerPhoneNumber,
+    required this.description,
   });
 
-  /// Convert from API JSON
   factory PetModel.fromJson(Map<String, dynamic> json) {
+    String rawImageUrl = json['imageUrl'] ?? '';
+    String resolvedImageUrl = rawImageUrl.startsWith('/')
+        ? 'http://192.168.10.70:3001$rawImageUrl'
+        : rawImageUrl;
+
+    // 🛠 Handle MongoDB ObjectId (_id.$oid)
+    String extractId(dynamic idField) {
+      if (idField is Map && idField.containsKey(r'$oid')) {
+        return idField[r'$oid'] ?? '';
+      } else if (idField is String) {
+        return idField;
+      }
+      return '';
+    }
+
     return PetModel(
-      id: json['id'],
-      name: json['name'],
-      type: json['type'],
-      age: json['age'],
-      sex: json['sex'],
-      breed: json['breed'],
-      location: json['location'],
-      imageUrl: json['imageUrl'],
-      adopted: json['adopted'],
-      ownerPhoneNumber: json['ownerPhoneNumber'],
+      id: extractId(json['_id']),
+      name: json['name'] ?? '',
+      type: json['type'] ?? '',
+      age: json['age'] ?? 0,
+      sex: json['sex'] ?? '',
+      breed: json['breed'] ?? '',
+      location: json['location'] ?? '',
+      imageUrl: resolvedImageUrl,
+      adopted: json['adopted'] ?? false,
+      ownerPhoneNumber: json['ownerPhoneNumber']?.toString() ?? '',
+      description: json['description'] ?? '',
     );
   }
 
-  /// Convert to JSON for API
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -77,10 +95,10 @@ class PetModel extends HiveObject {
       'imageUrl': imageUrl,
       'adopted': adopted,
       'ownerPhoneNumber': ownerPhoneNumber,
+      'description': description,
     };
   }
 
-  /// Convert to Entity (for business logic)
   PetEntity toEntity({int? hiveId}) => PetEntity(
     hiveId: hiveId ?? (key as int?),
     id: id,
@@ -93,9 +111,9 @@ class PetModel extends HiveObject {
     imageUrl: imageUrl,
     adopted: adopted,
     ownerPhoneNumber: ownerPhoneNumber,
+    description: description,
   );
 
-  /// Convert from Entity (useful when saving to Hive)
   factory PetModel.fromEntity(PetEntity entity) => PetModel(
     id: entity.id,
     name: entity.name,
@@ -107,5 +125,6 @@ class PetModel extends HiveObject {
     imageUrl: entity.imageUrl,
     adopted: entity.adopted,
     ownerPhoneNumber: entity.ownerPhoneNumber,
+    description: entity.description,
   );
 }

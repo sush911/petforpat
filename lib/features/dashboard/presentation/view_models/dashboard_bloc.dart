@@ -20,6 +20,7 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     });
 
     on<AdoptRequested>((event, emit) async {
+      emit(PetsLoading()); // optional: show loading while adopting
       try {
         await adoptPet(userId: event.userId, petId: event.petId);
         emit(PetAdopted(event.petId));
@@ -28,6 +29,5 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         emit(PetsError(err.toString()));
       }
     });
-
   }
 }

@@ -19,16 +19,23 @@ class PetRemoteDataSourceImpl implements PetRemoteDataSource {
   Future<List<PetModel>> fetchPets({Map<String, dynamic>? filters}) async {
     try {
       final response = await dio.get('/pets', queryParameters: filters);
+
+      // 🐾 Debug logs for raw API data and parsed result
+      print('🐾 Raw response: ${response.data}');
+
       final pets = (response.data as List)
-          .map((json) => PetModel.fromJson(json))
+          .map<PetModel>((json) => PetModel.fromJson(json))
           .toList();
 
+      print('✅ Parsed pets count: ${pets.length}');
       await local.cachePetList(pets);
       return pets;
-    } catch (_) {
+    } catch (e) {
+      print('⚠️ Failed to fetch from API, using local cache. Error: $e');
       return await local.getCachedPetList();
     }
   }
+
 
   @override
   Future<PetModel> getPetDetail(String id) async {

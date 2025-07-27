@@ -1,10 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+
+// Auth feature imports
 import 'package:petforpat/features/auth/data/datasources/remote_datasource/auth_remote_datasource.dart';
 import 'package:petforpat/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:petforpat/features/auth/domain/repositories/auth_repository.dart';
 import 'package:petforpat/features/auth/domain/usecases/update_profile_usecase.dart';
 import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart';
+
+// Dashboard feature imports
 import 'package:petforpat/features/dashboard/data/datasources/local_datasource/pet_local_datasource.dart';
 import 'package:petforpat/features/dashboard/data/datasources/remote_datasource/pet_remote_datasource.dart';
 import 'package:petforpat/features/dashboard/data/repositories/pet_repository_impl.dart';
@@ -16,7 +20,7 @@ import 'package:petforpat/features/dashboard/presentation/view_models/dashboard_
 final sl = GetIt.instance;
 
 Future<void> setupServiceLocator() async {
-  // ✅ Dio with BaseOptions
+  // Dio client with base options
   sl.registerLazySingleton(() => Dio(
     BaseOptions(
       baseUrl: 'http://192.168.10.70:3001/api',
@@ -28,14 +32,14 @@ Future<void> setupServiceLocator() async {
     ),
   ));
 
-  // ✅ Optional: HTTP logging
+  // Add logging interceptor for Dio
   final dio = sl<Dio>();
   dio.interceptors.add(LogInterceptor(
     requestBody: true,
     responseBody: true,
   ));
 
-  // ✅ Auth
+  // Auth feature registrations
   sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(sl()));
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
@@ -44,19 +48,25 @@ Future<void> setupServiceLocator() async {
     updateProfileUseCase: sl(),
   ));
 
-  // ✅ Pet Local + Remote + Repository
+  // Dashboard feature registrations
+
+  // **IMPORTANT**: Register PetLocalDataSource first so it's available to PetRemoteDataSourceImpl
   sl.registerLazySingleton<PetLocalDataSource>(() => PetLocalDataSourceImpl());
+
+  // PetRemoteDataSource depends on Dio and PetLocalDataSource
   sl.registerLazySingleton<PetRemoteDataSource>(() => PetRemoteDataSourceImpl(sl(), sl()));
+
+  // PetRepository depends on PetRemoteDataSource and PetLocalDataSource
   sl.registerLazySingleton<PetRepository>(() => PetRepositoryImpl(
     sl<PetRemoteDataSource>(),
     sl<PetLocalDataSource>(),
   ));
 
-  // ✅ UseCases
+  // UseCases
   sl.registerLazySingleton(() => GetPetsUseCase(sl()));
   sl.registerLazySingleton(() => AdoptPetUseCase(sl()));
 
-  // ✅ Dashboard Bloc
+  // DashboardBloc depends on GetPetsUseCase and AdoptPetUseCase
   sl.registerFactory(() => DashboardBloc(
     getPets: sl(),
     adoptPet: sl(),

@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class PetEntity extends Equatable {
-  final int? hiveId; // Hive keys are usually int and nullable
+  final int? hiveId;
   final String id;
   final String name;
   final String type;
@@ -12,6 +12,7 @@ class PetEntity extends Equatable {
   final String imageUrl;
   final bool adopted;
   final String ownerPhoneNumber;
+  final String description;
 
   const PetEntity({
     this.hiveId,
@@ -25,6 +26,7 @@ class PetEntity extends Equatable {
     required this.imageUrl,
     required this.adopted,
     required this.ownerPhoneNumber,
+    required this.description,
   });
 
   @override
@@ -40,5 +42,6 @@ class PetEntity extends Equatable {
     imageUrl,
     adopted,
     ownerPhoneNumber,
+    description,
   ];
 }

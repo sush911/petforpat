@@ -27,13 +27,14 @@ class PetModelAdapter extends TypeAdapter<PetModel> {
       imageUrl: fields[7] as String,
       adopted: fields[8] as bool,
       ownerPhoneNumber: fields[9] as String,
+      description: fields[10] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, PetModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class PetModelAdapter extends TypeAdapter<PetModel> {
       ..writeByte(8)
       ..write(obj.adopted)
       ..writeByte(9)
-      ..write(obj.ownerPhoneNumber);
+      ..write(obj.ownerPhoneNumber)
+      ..writeByte(10)
+      ..write(obj.description);
   }
 
   @override
