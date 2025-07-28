@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_event.dart';
@@ -15,11 +14,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.authRepository,
     required this.updateProfileUseCase,
   }) : super(AuthInitial()) {
+    on<AppStarted>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        final user = await authRepository.getCurrentUser();
+        final fullUser = _withFullImageUrl(user);
+        emit(AuthAuthenticated(user: fullUser));
+        print('🚀 App started, user loaded: ${user.username}');
+      } catch (e) {
+        emit(AuthInitial());
+        print('🚀 App started, no user found');
+      }
+    });
+
     on<RegisterRequested>((event, emit) async {
       emit(AuthLoading());
       try {
         await authRepository.register(event.userData);
-        emit(AuthAuthenticated());
+        final user = await authRepository.getCurrentUser();
+        emit(AuthAuthenticated(user: _withFullImageUrl(user)));
+        print('✅ Registered: ${user.username}');
       } catch (e) {
         emit(AuthError(message: e.toString()));
       }
@@ -29,8 +43,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoading());
       try {
         await authRepository.login(event.username, event.password);
-        emit(AuthAuthenticated());
+        final user = await authRepository.getCurrentUser();
+        final fullUser = _withFullImageUrl(user);
+        emit(AuthAuthenticated(user: fullUser));
+        print('✅ Logged in as: ${user.username}, ID: ${user.id}');
       } catch (e) {
+        print('❌ Login error: $e');
         emit(AuthError(message: e.toString()));
       }
     });
@@ -39,7 +57,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthUpdatingProfile());
       try {
         final user = await updateProfileUseCase(event.data, event.image);
-        emit(AuthProfileUpdated(_withFullImageUrl(user)));
+        final fullUser = _withFullImageUrl(user);
+        emit(AuthAuthenticated(user: fullUser));
+        print('📝 Profile updated: ${user.username}, ID: ${user.id}');
       } catch (e) {
         emit(AuthError(message: e.toString()));
       }
@@ -49,19 +69,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       emit(AuthLoading());
       try {
         final user = await authRepository.getCurrentUser();
-        emit(AuthProfileUpdated(_withFullImageUrl(user)));
+        final fullUser = _withFullImageUrl(user);
+        emit(AuthAuthenticated(user: fullUser));
+        print('📥 Fetched profile: ${user.username}, ID: ${user.id}');
       } catch (e) {
         emit(AuthError(message: e.toString()));
       }
     });
 
     on<LogoutEvent>((event, emit) async {
-      // ✅ Clear auth_token from shared preferences
-
-      // 🧼 Optional: Clear token from Dio headers
-      await authRepository.clearToken();
-
-      emit(AuthInitial());
+      try {
+        await authRepository.clearToken();
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('auth_token');
+        emit(AuthInitial());
+        print('🔓 Logged out and cleared token');
+      } catch (e) {
+        emit(AuthError(message: 'Logout failed: ${e.toString()}'));
+      }
     });
   }
 

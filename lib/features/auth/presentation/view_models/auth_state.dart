@@ -1,4 +1,3 @@
-// auth_state.dart
 import 'package:equatable/equatable.dart';
 import 'package:petforpat/features/auth/domain/entities/user_entity.dart';
 
@@ -11,7 +10,14 @@ class AuthInitial extends AuthState {}
 
 class AuthLoading extends AuthState {}
 
-class AuthAuthenticated extends AuthState {}
+class AuthAuthenticated extends AuthState {
+  final UserEntity user;
+
+  AuthAuthenticated({required this.user});
+
+  @override
+  List<Object?> get props => [user];
+}
 
 class AuthUpdatingProfile extends AuthState {}
 
@@ -32,4 +38,5 @@ class AuthError extends AuthState {
   @override
   List<Object?> get props => [message];
 }
+
 class AuthLoggedOut extends AuthState {}

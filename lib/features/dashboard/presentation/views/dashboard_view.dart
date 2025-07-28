@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:petforpat/features/auth/domain/entities/user_entity.dart'; // Import UserEntity
+
 import 'package:petforpat/features/auth/presentation/views/profile_view.dart';
 import 'package:petforpat/features/favorite/presentation/views/favorite_screen.dart';
 import 'package:petforpat/features/notification/presentation/views/notification.dart';
-import 'package:petforpat/features/dashboard/domain/entities/pet_entity.dart';
 import 'dashboard_home.dart';
 
 class DashboardView extends StatefulWidget {
-  const DashboardView({super.key});
+  final UserEntity user;  // <-- Add this
+
+  const DashboardView({super.key, required this.user});  // <-- Update constructor
 
   @override
   State<DashboardView> createState() => _DashboardViewState();
@@ -24,16 +27,14 @@ class _DashboardViewState extends State<DashboardView> {
   @override
   void initState() {
     super.initState();
+
+    debugPrint('🟢 [DashboardView] Received user ID: ${widget.user.id}');
+
     _screens = [
-      DashboardHome(
-        onPetTap: (PetEntity pet) {
-          // You can handle the pet entity here if needed
-          _onTabTapped(1);
-        },
-      ),
+      DashboardHome(user: widget.user),  // <-- Pass user down here
       const FavoriteScreen(),
       const NotificationScreen(),
-      const ProfileView(),
+      ProfileView(user: widget.user),    // Pass user if needed
     ];
   }
 

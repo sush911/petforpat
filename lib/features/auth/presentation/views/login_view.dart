@@ -6,6 +6,7 @@ import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart'
 import 'package:petforpat/features/auth/presentation/view_models/auth_event.dart';
 import 'package:petforpat/features/auth/presentation/view_models/auth_state.dart';
 import 'package:petforpat/features/dashboard/presentation/views/dashboard_view.dart';
+import 'package:petforpat/features/auth/domain/entities/user_entity.dart'; // ✅ Needed
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -37,7 +38,6 @@ class _LoginViewState extends State<LoginView> {
     final password = _passwordController.text.trim();
 
     context.read<AuthBloc>().add(LoginRequested(username: username, password: password));
-
   }
 
   @override
@@ -54,8 +54,7 @@ class _LoginViewState extends State<LoginView> {
           child: Center(
             child: SingleChildScrollView(
               child: Container(
-                margin:
-                const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
+                margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
                 padding: const EdgeInsets.all(28),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.85),
@@ -75,7 +74,8 @@ class _LoginViewState extends State<LoginView> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => const DashboardView()),
+                          builder: (_) => DashboardView(user: state.user), // ✅ Pass user
+                        ),
                       );
                     } else if (state is AuthError) {
                       setState(() {
@@ -120,7 +120,6 @@ class _LoginViewState extends State<LoginView> {
                           const SizedBox(height: 12),
                           _buildSignUpOption(),
                           const SizedBox(height: 30),
-                          // Your social login buttons or divider can go here
                         ],
                       ),
                     );

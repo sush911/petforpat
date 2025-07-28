@@ -26,6 +26,7 @@ class PetRepositoryImpl implements PetRepository {
   }
 
   @override
+  @override
   Future<void> adoptPet({required String userId, required String petId}) async {
     await remote.adoptPet(userId: userId, petId: petId);
   }

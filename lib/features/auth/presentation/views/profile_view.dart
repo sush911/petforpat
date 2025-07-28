@@ -13,20 +13,24 @@ import 'package:petforpat/features/auth/presentation/view_models/auth_event.dart
 import 'package:petforpat/features/auth/presentation/view_models/auth_state.dart';
 
 class ProfileView extends StatefulWidget {
-  const ProfileView({super.key});
+  final UserEntity? user; // Optional user passed to widget
+
+  const ProfileView({super.key, this.user});
 
   @override
   State<ProfileView> createState() => _ProfileViewState();
 }
 
+// Private State class for ProfileView widget
 class _ProfileViewState extends State<ProfileView> {
+  // Controllers for form fields
   late TextEditingController usernameController;
   late TextEditingController firstNameController;
   late TextEditingController lastNameController;
   late TextEditingController phoneController;
   late TextEditingController addressController;
 
-  File? _profileImage;
+  File? _profileImage; // Selected image file for profile picture
   bool _controllersInitialized = false;
 
   StreamSubscription<AccelerometerEvent>? _accelSubscription;
@@ -35,22 +39,25 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   void initState() {
     super.initState();
+
+    // Initialize controllers
     usernameController = TextEditingController();
     firstNameController = TextEditingController();
     lastNameController = TextEditingController();
     phoneController = TextEditingController();
     addressController = TextEditingController();
 
-    // Fetch profile
-    context.read<AuthBloc>().add(FetchProfileEvent());
+    // Initialize controllers if user is passed
+    if (widget.user != null) {
+      _initializeControllers(widget.user!);
+    } else {
+      // Fetch user profile if no user passed
+      context.read<AuthBloc>().add(FetchProfileEvent());
+    }
 
-    // Start shake detection
+    // Listen to accelerometer for shake-to-logout functionality
     _accelSubscription = accelerometerEvents.listen((event) {
-      final acceleration = sqrt(
-        event.x * event.x + event.y * event.y + event.z * event.z,
-      );
-
-      // Typical shake threshold ~15, adjust as needed
+      final acceleration = sqrt(event.x * event.x + event.y * event.y + event.z * event.z);
       if (acceleration > 15) {
         final now = DateTime.now();
         if (now.difference(_lastShakeTime).inMilliseconds > 1000) {
@@ -64,6 +71,7 @@ class _ProfileViewState extends State<ProfileView> {
     });
   }
 
+  // Initialize form fields only once
   void _initializeControllers(UserEntity user) {
     if (!_controllersInitialized) {
       usernameController.text = user.username;
@@ -75,6 +83,7 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
+  // Pick image from camera or gallery
   Future<void> _pickImage(ImageSource source) async {
     final picked = await ImagePicker().pickImage(source: source);
     if (picked != null) {
@@ -84,6 +93,7 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
+  // Show bottom sheet for image source selection
   void _showImageSourceOptions() {
     showModalBottomSheet(
       context: context,
@@ -112,6 +122,7 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
+  // Dispatch profile update event with form data and optional image
   void _saveProfile() {
     final data = {
       'username': usernameController.text,
@@ -123,6 +134,7 @@ class _ProfileViewState extends State<ProfileView> {
     context.read<AuthBloc>().add(UpdateProfileEvent(data: data, image: _profileImage));
   }
 
+  // Dispatch logout event
   void _logout() {
     context.read<AuthBloc>().add(LogoutEvent());
   }
@@ -130,10 +142,19 @@ class _ProfileViewState extends State<ProfileView> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listenWhen: (previous, current) => current is AuthInitial,
+      listenWhen: (previous, current) =>
+      current is AuthInitial || current is AuthError || current is AuthProfileUpdated,
       listener: (context, state) {
         if (state is AuthInitial) {
           Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
+        } else if (state is AuthError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("❌ ${state.message}")),
+          );
+        } else if (state is AuthProfileUpdated) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("✅ Profile updated successfully")),
+          );
         }
       },
       child: Scaffold(
@@ -163,76 +184,19 @@ class _ProfileViewState extends State<ProfileView> {
               return const Center(child: CircularProgressIndicator());
             }
 
-            if (state is AuthProfileUpdated) {
-              final user = state.user;
-              _initializeControllers(user);
+            if (state is AuthProfileUpdated || state is AuthAuthenticated) {
+              final user = state is AuthProfileUpdated
+                  ? state.user
+                  : (state as AuthAuthenticated).user;
 
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: _showImageSourceOptions,
-                      child: CircleAvatar(
-                        radius: 60,
-                        backgroundImage: _profileImage != null
-                            ? FileImage(_profileImage!)
-                            : (user.profileImage != null
-                            ? NetworkImage(user.profileImage!)
-                            : const AssetImage('assets/images/default_profile.png'))
-                        as ImageProvider,
-                        child: Align(
-                          alignment: Alignment.bottomRight,
-                          child: CircleAvatar(
-                            radius: 18,
-                            backgroundColor: Colors.white,
-                            child: const Icon(Icons.edit, size: 20),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    _buildTextField('Username', usernameController),
-                    const SizedBox(height: 20),
-                    _buildTextField('First Name', firstNameController),
-                    const SizedBox(height: 20),
-                    _buildTextField('Last Name', lastNameController),
-                    const SizedBox(height: 20),
-                    _buildTextField('Phone Number', phoneController),
-                    const SizedBox(height: 20),
-                    _buildTextField('Address', addressController),
-                    const SizedBox(height: 24),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 24.0),
-                      child: Align(
-                        alignment: Alignment.center,
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.7,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              backgroundColor: const Color(0xFF3B82F6),
-                            ),
-                            onPressed: _saveProfile,
-                            child: const Text(
-                              'Save Changes',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontFamily: 'RobotoSemiBold',
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
+              _initializeControllers(user);
+              return _buildProfileForm(user);
+            }
+
+            if (widget.user != null) {
+              // Fallback if widget.user exists but no AuthState available yet
+              _initializeControllers(widget.user!);
+              return _buildProfileForm(widget.user!);
             }
 
             if (state is AuthError) {
@@ -256,6 +220,77 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
+  // Profile form widget
+  Widget _buildProfileForm(UserEntity user) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          GestureDetector(
+            onTap: _showImageSourceOptions,
+            child: CircleAvatar(
+              radius: 60,
+              backgroundImage: _profileImage != null
+                  ? FileImage(_profileImage!)
+                  : (user.profileImage != null
+                  ? NetworkImage(user.profileImage!)
+                  : const AssetImage('assets/images/default_profile.jpg'))
+              as ImageProvider,
+              child: Align(
+                alignment: Alignment.bottomRight,
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.white,
+                  child: const Icon(Icons.edit, size: 20),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 30),
+          _buildTextField('Username', usernameController),
+          const SizedBox(height: 20),
+          _buildTextField('First Name', firstNameController),
+          const SizedBox(height: 20),
+          _buildTextField('Last Name', lastNameController),
+          const SizedBox(height: 20),
+          _buildTextField('Phone Number', phoneController),
+          const SizedBox(height: 20),
+          _buildTextField('Address', addressController),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 24.0),
+            child: Align(
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.7,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    backgroundColor: const Color(0xFF3B82F6),
+                  ),
+                  onPressed: _saveProfile,
+                  child: const Text(
+                    'Save Changes',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontFamily: 'RobotoSemiBold',
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper for text fields
   Widget _buildTextField(String label, TextEditingController controller) {
     return Container(
       decoration: BoxDecoration(
@@ -295,4 +330,3 @@ class _ProfileViewState extends State<ProfileView> {
     super.dispose();
   }
 }
-
