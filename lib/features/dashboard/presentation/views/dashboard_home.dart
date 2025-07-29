@@ -21,10 +21,12 @@ class _DashboardHomeState extends State<DashboardHome> {
   void initState() {
     super.initState();
     context.read<PetBloc>().add(LoadPetsEvent());
+    _searchController.addListener(_triggerSearch); // Listen as user types
   }
 
   @override
   void dispose() {
+    _searchController.removeListener(_triggerSearch);
     _searchController.dispose();
     super.dispose();
   }
@@ -35,21 +37,27 @@ class _DashboardHomeState extends State<DashboardHome> {
   }
 
   void _triggerSearch() {
-    context.read<PetBloc>().add(LoadPetsEvent(
-      search: _searchController.text,
-      category: selectedCategory != 'All' ? selectedCategory : null,
-    ));
+    context.read<PetBloc>().add(
+      LoadPetsEvent(
+        search: _searchController.text,
+        category: selectedCategory != 'All' ? selectedCategory : null,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
-    // Use 2 columns on tablet, 1 on phone
     final crossAxisCount = isTablet ? 2 : 1;
-
-    // On tablet, use larger card height and image width for better filling space
     final cardHeight = isTablet ? 180.0 : 110.0;
     final imageWidth = isTablet ? 180.0 : 100.0;
+
+    final Map<String, IconData?> categoryIcons = {
+      'All': null,
+      'Dog': Icons.pets,
+      'Cat': Icons.pets,
+      'Bird': Icons.travel_explore, // Replace with bird icon if you have one
+    };
 
     return Scaffold(
       appBar: AppBar(
@@ -61,50 +69,42 @@ class _DashboardHomeState extends State<DashboardHome> {
           children: [
             Padding(
               padding: const EdgeInsets.all(12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search pets...',
-                        prefixIcon: Icon(Icons.search, color: Colors.teal.shade700),
-                        filled: true,
-                        fillColor: Colors.teal.shade50,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      onSubmitted: (_) => _triggerSearch(),
-                    ),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search pets...',
+                  prefixIcon: Icon(Icons.search, color: Colors.teal.shade700),
+                  filled: true,
+                  fillColor: Colors.teal.shade50,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _triggerSearch,
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: const EdgeInsets.all(14),
-                      backgroundColor: Colors.teal,
-                    ),
-                    child: const Icon(Icons.arrow_forward, color: Colors.white),
-                  ),
-                ],
+                ),
               ),
             ),
 
+            // Category chips with icons
             SizedBox(
               height: 50,
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                children: ['All', 'Dog', 'Cat', 'Bird']
-                    .map((category) {
+                children: categoryIcons.keys.map((category) {
                   final selected = category == selectedCategory;
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: ChoiceChip(
-                      label: Text(category),
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (categoryIcons[category] != null) ...[
+                            Icon(categoryIcons[category], size: 18),
+                            const SizedBox(width: 4),
+                          ],
+                          Text(category),
+                        ],
+                      ),
                       selected: selected,
                       onSelected: (_) {
                         setState(() {

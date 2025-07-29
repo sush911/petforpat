@@ -63,7 +63,7 @@ class _DashboardViewState extends State<DashboardView> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.message),
-              label: 'Adoption',
+              label: 'Adopt',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.notifications),
@@ -79,3 +79,4 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 }
+
