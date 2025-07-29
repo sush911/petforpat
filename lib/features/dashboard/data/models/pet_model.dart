@@ -100,4 +100,20 @@ class PetModel extends PetEntity {
     'ownerPhoneNumber': ownerPhoneNumber,
     'description': description,
   };
+
+  /// 👇 Added this method to convert from PetEntity
+  factory PetModel.fromEntity(PetEntity entity) {
+    return PetModel(
+      id: entity.id,
+      name: entity.name,
+      type: entity.type,
+      age: entity.age,
+      sex: entity.sex,
+      breed: entity.breed,
+      location: entity.location,
+      imageUrl: entity.imageUrl,
+      ownerPhoneNumber: entity.ownerPhoneNumber,
+      description: entity.description,
+    );
+  }
 }
