@@ -1,5 +1,3 @@
-// features/dashboard/presentation/views/pet_detail_page.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:petforpat/app/service_locator/service_locator.dart';
@@ -21,28 +19,34 @@ class PetDetailPage extends StatelessWidget {
     return 'http://192.168.10.70:3001$imageUrl';
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: Colors.teal),
-          const SizedBox(width: 12),
-          Text(
-            "$label: ",
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          Expanded(
-            child: Text(value, style: const TextStyle(fontSize: 16)),
-          ),
-        ],
-      ),
+  Widget _buildInfoTile({
+    required IconData icon,
+    required String title,
+    required String value,
+    required bool isTablet,
+  }) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(icon, color: Colors.teal, size: isTablet ? 32 : 24),
+      title: Text(title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: isTablet ? 20 : 16,
+          )),
+      subtitle: Text(value,
+          style: TextStyle(
+            fontSize: isTablet ? 18 : 15,
+          )),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
+    final imageHeight = isTablet ? 320.0 : 240.0;
+    final sidePadding = isTablet ? 32.0 : 20.0;
+    final buttonPadding = isTablet ? EdgeInsets.symmetric(horizontal: 36, vertical: 18) : EdgeInsets.symmetric(horizontal: 24, vertical: 14);
+
     return BlocProvider(
       create: (_) => sl<PetDetailBloc>()..add(LoadPetDetailEvent(petId)),
       child: Scaffold(
@@ -82,54 +86,110 @@ class PetDetailPage extends StatelessWidget {
               final pet = state.pet;
 
               return SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: EdgeInsets.all(sidePadding),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        getFullImageUrl(pet.imageUrl),
-                        width: double.infinity,
-                        height: 240,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                    Hero(
+                      tag: pet.imageUrl,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.network(
+                          getFullImageUrl(pet.imageUrl),
                           width: double.infinity,
-                          height: 240,
-                          color: Colors.grey.shade300,
-                          child: const Center(child: Icon(Icons.error)),
+                          fit: BoxFit.fitWidth,
+                          errorBuilder: (_, __, ___) => Container(
+                            height: 240,
+                            color: Colors.grey.shade300,
+                            child: const Icon(Icons.error, size: 50),
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+
+                    SizedBox(height: isTablet ? 32 : 24),
                     Center(
                       child: Text(
                         pet.name,
-                        style: const TextStyle(
-                          fontSize: 28,
+                        style: TextStyle(
+                          fontSize: isTablet ? 36 : 30,
                           fontWeight: FontWeight.bold,
                           color: Colors.teal,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    _buildInfoRow(Icons.pets, "Breed", pet.breed),
-                    _buildInfoRow(Icons.cake, "Age", '${pet.age} years'),
-                    _buildInfoRow(Icons.location_on, "Location", pet.location),
-                    _buildInfoRow(Icons.info_outline, "Description", pet.description),
-                    const SizedBox(height: 30),
+                    SizedBox(height: isTablet ? 28 : 20),
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                      child: Padding(
+                        padding: EdgeInsets.all(isTablet ? 24 : 16),
+                        child: Column(
+                          children: [
+                            _buildInfoTile(
+                              icon: Icons.pets,
+                              title: "Breed",
+                              value: pet.breed,
+                              isTablet: isTablet,
+                            ),
+                            _buildInfoTile(
+                              icon: Icons.cake,
+                              title: "Age",
+                              value: '${pet.age} years',
+                              isTablet: isTablet,
+                            ),
+                            _buildInfoTile(
+                              icon: Icons.male,
+                              title: "Sex",
+                              value: pet.sex,
+                              isTablet: isTablet,
+                            ),
+                            _buildInfoTile(
+                              icon: Icons.location_on,
+                              title: "Location",
+                              value: pet.location,
+                              isTablet: isTablet,
+                            ),
+                            _buildInfoTile(
+                              icon: Icons.phone,
+                              title: "Owner Contact",
+                              value: pet.ownerPhoneNumber,
+                              isTablet: isTablet,
+                            ),
+                            const Divider(height: 30),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text("About",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: isTablet ? 22 : 18,
+                                  )),
+                            ),
+                            SizedBox(height: isTablet ? 14 : 10),
+                            Text(
+                              pet.description,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: isTablet ? 18 : 14),
+                              textAlign: TextAlign.justify,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: isTablet ? 36 : 30),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.teal,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30)),
+                            padding: buttonPadding,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                           ),
                           onPressed: () {
-                            // TODO: Implement favorite logic or event
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text("Added to Favorites!")),
                             );
@@ -140,15 +200,13 @@ class PetDetailPage extends StatelessWidget {
                         ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.teal,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30)),
+                            padding: buttonPadding,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                           ),
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                  builder: (_) => const AdoptionScreen()),
+                              MaterialPageRoute(builder: (_) => const AdoptionScreen()),
                             );
                           },
                           icon: const Icon(Icons.pets),
@@ -156,6 +214,7 @@ class PetDetailPage extends StatelessWidget {
                         ),
                       ],
                     ),
+                    SizedBox(height: isTablet ? 28 : 20),
                   ],
                 ),
               );
@@ -167,3 +226,12 @@ class PetDetailPage extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
+
+
