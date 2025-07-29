@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart';
-import 'package:petforpat/features/auth/presentation/view_models/auth_state.dart';
 import 'package:petforpat/features/auth/presentation/views/login_view.dart';
 import 'package:petforpat/features/auth/presentation/views/signup_view.dart';
-import 'package:petforpat/features/dashboard/presentation/views/dashboard_view.dart';
-import 'package:petforpat/features/splash/presentation/views/splash_view.dart';
+import 'package:petforpat/features/auth/presentation/views/profile_view.dart';
+import 'package:petforpat/features/dashboard/presentation/views/dashboard_view.dart';  // Import DashboardView
+import 'package:petforpat/features/splash/presentation/views/splash_view.dart' hide DashboardView;
 
 class PetForPatApp extends StatelessWidget {
   const PetForPatApp({super.key});
@@ -13,36 +11,21 @@ class PetForPatApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Pet For Pat',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        scaffoldBackgroundColor: Colors.grey[100],
-      ),
-      home: BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          return _buildHome(state);
-        },
-      ),
-      // Optional: in case you still need named routes for manual navigation
+      title: 'Pet for Pat',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const SplashScreen(),
       routes: {
         '/login': (context) => const LoginView(),
         '/signup': (context) => const SignupView(),
+        '/profile': (context) => const ProfileView(),
+        '/dashboardHome': (context) => const DashboardView(),  // Added dashboard route here
+      },
+      onUnknownRoute: (settings) {
+        return MaterialPageRoute(
+          builder: (context) => const SplashScreen(),
+        );
       },
     );
-  }
-
-  Widget _buildHome(AuthState state) {
-    if (state is AuthLoading || state is AuthInitial) {
-      return const SplashScreen();
-    } else if (state is AuthAuthenticated) {
-      return DashboardView(user: state.user);
-    } else if (state is AuthLoggedOut) {
-      return const LoginView();
-    } else if (state is AuthError) {
-      return const LoginView(); // or ErrorView(message: state.message)
-    } else {
-      return const SplashScreen(); // fallback safety
-    }
   }
 }

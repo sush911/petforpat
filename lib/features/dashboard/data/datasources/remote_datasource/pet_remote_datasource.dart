@@ -1,74 +1,55 @@
 import 'package:dio/dio.dart';
-import 'package:petforpat/app/shared_pref/shared_preferences.dart';
-import 'package:petforpat/features/dashboard/data/datasources/local_datasource/pet_local_datasource.dart';
 import 'package:petforpat/features/dashboard/data/models/pet_model.dart';
 
-/// Abstract contract for remote data operations related to pets.
 abstract class PetRemoteDataSource {
-  Future<List<PetModel>> fetchPets({Map<String, dynamic>? filters});
-  Future<PetModel> getPetDetail(String id);
-  Future<void> adoptPet({required String userId, required String petId});
+  Future<List<PetModel>> fetchPets({String? search, String? category});
+  Future<PetModel> fetchPetById(String id);
 }
 
-/// Implementation of PetRemoteDataSource using Dio for API communication.
 class PetRemoteDataSourceImpl implements PetRemoteDataSource {
   final Dio dio;
-  final PetLocalDataSource local;
-  final SharedPrefsHelper prefsHelper = SharedPrefsHelper(); // ✅ initialize helper
 
-  PetRemoteDataSourceImpl(this.dio, this.local);
+  PetRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<List<PetModel>> fetchPets({Map<String, dynamic>? filters}) async {
+  Future<List<PetModel>> fetchPets({String? search, String? category}) async {
     try {
-      final response = await dio.get('/pets', queryParameters: filters);
+      final queryParams = <String, dynamic>{
+        if (search != null && search.isNotEmpty) 'search': search,
+        if (category != null && category.isNotEmpty) 'type': category,
+      };
 
-      print('🐾 Raw response: ${response.data}');
-      final pets = (response.data as List)
-          .map<PetModel>((json) => PetModel.fromJson(json))
-          .toList();
+      final response = await dio.get('/pets', queryParameters: queryParams);
 
-      print('✅ Parsed pets count: ${pets.length}');
-      await local.cachePetList(pets);
-      return pets;
-    } catch (e) {
-      print('⚠️ Failed to fetch from API, using local cache. Error: $e');
-      return await local.getCachedPetList();
+      print("📦 fetchPets Raw Response: ${response.data.runtimeType}");
+
+      if (response.data is List) {
+        return (response.data as List)
+            .map((json) => PetModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        throw Exception('Expected a List from API but got: ${response.data.runtimeType}');
+      }
+    } catch (e, st) {
+      print("❌ Error in fetchPets: $e");
+      print("🪵 Stack Trace: $st");
+      rethrow;
     }
   }
 
   @override
-  Future<PetModel> getPetDetail(String id) async {
-    final response = await dio.get('/pets/$id');
-    return PetModel.fromJson(response.data);
-  }
-
-  @override
-  Future<void> adoptPet({required String userId, required String petId}) async {
+  Future<PetModel> fetchPetById(String id) async {
     try {
-      final token = await prefsHelper.getToken();
+      final response = await dio.get('/pets/$id');
 
-      if (token == null) {
-        throw Exception('User is not authenticated');
+      if (response.data is Map<String, dynamic>) {
+        return PetModel.fromJson(response.data);
+      } else {
+        throw Exception('Expected a Map for single pet but got: ${response.data.runtimeType}');
       }
-
-      final response = await dio.post(
-        '/adoptions/$petId',
-        data: {
-          'userId': userId, // ✅ send userId in request body
-        },
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      print('✅ Adoption successful: ${response.statusCode}');
     } catch (e) {
-      print('❌ Failed to adopt pet: $e');
-      throw Exception('Failed to send adoption request: ${e.toString()}');
+      print("❌ Error in fetchPetById: $e");
+      rethrow;
     }
   }
 }

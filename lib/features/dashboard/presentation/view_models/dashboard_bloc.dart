@@ -1,33 +1,31 @@
+
 import 'package:bloc/bloc.dart';
-import 'package:petforpat/features/dashboard/domain/usecases/adopt_pet_usecase.dart';
+import 'package:petforpat/features/dashboard/domain/usecases/get_pet_usecase.dart';
 import 'package:petforpat/features/dashboard/domain/usecases/get_pets_usecase.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/dashboard_event.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/dashboard_state.dart';
 
 class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
-  final GetPetsUseCase getPets;
-  final AdoptPetUseCase adoptPet;
+  final GetPetsUseCase getPetsUseCase;
 
-  DashboardBloc({required this.getPets, required this.adoptPet}) : super(PetsLoading()) {
-    on<FetchPets>((event, emit) async {
-      emit(PetsLoading());
-      try {
-        final pets = await getPets(filters: event.filters ?? {});
-        emit(PetsLoaded(pets));
-      } catch (err) {
-        emit(PetsError(err.toString()));
-      }
-    });
+  DashboardBloc(this.getPetsUseCase) : super(DashboardInitial()) {
+    on<LoadPetsEvent>(_onLoadPets);
+  }
 
-    on<AdoptRequested>((event, emit) async {
-      emit(PetsLoading()); // optional: show loading while adopting
-      try {
-        await adoptPet(userId: event.userId, petId: event.petId);
-        emit(PetAdopted(event.petId));
-        add(FetchPets(filters: event.filters ?? {}));
-      } catch (err) {
-        emit(PetsError(err.toString()));
-      }
-    });
+  Future<void> _onLoadPets(
+      LoadPetsEvent event,
+      Emitter<DashboardState> emit,
+      ) async {
+    emit(DashboardLoading());
+    try {
+      final pets = await getPetsUseCase.call(
+        search: event.search,
+        category: event.category,
+        forceRefresh: event.forceRefresh,
+      );
+      emit(DashboardLoaded(pets));
+    } catch (e) {
+      emit(DashboardError(e.toString()));
+    }
   }
 }

@@ -1,129 +1,169 @@
+// features/dashboard/presentation/views/pet_detail_page.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart';
-import 'package:petforpat/features/auth/presentation/view_models/auth_state.dart';
-import 'package:petforpat/features/dashboard/domain/entities/pet_entity.dart';
-import 'package:petforpat/features/dashboard/presentation/view_models/dashboard_bloc.dart';
-import 'package:petforpat/features/dashboard/presentation/view_models/dashboard_event.dart';
+import 'package:petforpat/app/service_locator/service_locator.dart';
+import 'package:petforpat/features/adoption/presentation/views/adoption.dart';
+import 'package:petforpat/features/dashboard/presentation/view_models/pet_bloc.dart';
+import 'package:petforpat/features/dashboard/presentation/view_models/pet_event.dart';
+import 'package:petforpat/features/dashboard/presentation/view_models/pet_state.dart';
+import 'package:petforpat/features/favorite/presentation/views/favorite_screen.dart';
 
 class PetDetailPage extends StatelessWidget {
-  final PetEntity pet;
-  final String? userId;
+  final String petId;
 
-  const PetDetailPage({super.key, required this.pet, this.userId});
+  const PetDetailPage({super.key, required this.petId});
 
-  @override
-  Widget build(BuildContext context) {
-    final isAdopted = pet.adopted;
+  String getFullImageUrl(String imageUrl) {
+    if (imageUrl.startsWith('http') || imageUrl.startsWith('https')) {
+      return imageUrl;
+    }
+    return 'http://192.168.10.70:3001$imageUrl';
+  }
 
-    debugPrint('🐾 Opening detail page for pet: ${pet.name}');
-    debugPrint('👤 Received userId: $userId');
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(pet.name),
-        backgroundColor: Colors.teal,
-        elevation: 2,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Hero(
-            tag: pet.id,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                pet.imageUrl,
-                height: 240,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => const Icon(Icons.pets, size: 100),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
+          Icon(icon, color: Colors.teal),
+          const SizedBox(width: 12),
           Text(
-            pet.name,
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+            "$label: ",
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
-          const SizedBox(height: 8),
-          Text(
-            '${pet.breed}, ${pet.age} yrs old • ${pet.sex}',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '📍 ${pet.location}',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            pet.description,
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-          const SizedBox(height: 24),
-          Row(
-            children: [
-              Expanded(
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.volunteer_activism),
-                  label: Text(isAdopted ? 'Already Adopted' : 'Adopt'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isAdopted ? Colors.grey : Colors.teal,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  onPressed: isAdopted
-                      ? null
-                      : () {
-                    final effectiveUserId = userId ?? _getUserIdFromBloc(context);
-
-                    if (effectiveUserId == null || effectiveUserId.isEmpty) {
-                      debugPrint('❌ [Adopt] No userId found — user must log in');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('❌ Please login to adopt this pet')),
-                      );
-                      return;
-                    }
-
-                    debugPrint('✅ [Adopt] User $effectiveUserId is adopting ${pet.name}');
-
-                    context.read<DashboardBloc>().add(
-                      AdoptRequested(
-                        userId: effectiveUserId,
-                        petId: pet.id,
-                        filters: {'type': pet.type},
-                      ),
-                    );
-
-                    Navigator.pop(context);
-                  },
-
-                ),
-              ),
-              const SizedBox(width: 12),
-              IconButton(
-                icon: const Icon(Icons.favorite_border),
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('❤️ Added to favorites (not yet implemented)')),
-                  );
-                },
-              ),
-            ],
+          Expanded(
+            child: Text(value, style: const TextStyle(fontSize: 16)),
           ),
         ],
       ),
     );
   }
 
-  /// Tries to read the userId directly from AuthBloc if not passed
-  String? _getUserIdFromBloc(BuildContext context) {
-    final authState = context.read<AuthBloc>().state;
-    if (authState is AuthProfileUpdated) {
-      debugPrint('🧠 Fallback: Extracted user ID from AuthBloc: ${authState.user.id}');
-      return authState.user.id;
-    }
-    debugPrint('⚠️ Fallback failed: No user found in AuthBloc');
-    return null;
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<PetDetailBloc>()..add(LoadPetDetailEvent(petId)),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Pet Details"),
+          backgroundColor: Colors.teal,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.favorite),
+              tooltip: "Favorites",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const FavoriteScreen()),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.pets),
+              tooltip: "Adoption",
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AdoptionScreen()),
+                );
+              },
+            ),
+          ],
+        ),
+        body: BlocBuilder<PetDetailBloc, PetDetailState>(
+          builder: (context, state) {
+            if (state is PetDetailLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is PetDetailError) {
+              return Center(child: Text("Error: ${state.message}"));
+            } else if (state is PetDetailLoaded) {
+              final pet = state.pet;
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(
+                        getFullImageUrl(pet.imageUrl),
+                        width: double.infinity,
+                        height: 240,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          width: double.infinity,
+                          height: 240,
+                          color: Colors.grey.shade300,
+                          child: const Center(child: Icon(Icons.error)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: Text(
+                        pet.name,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.teal,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildInfoRow(Icons.pets, "Breed", pet.breed),
+                    _buildInfoRow(Icons.cake, "Age", '${pet.age} years'),
+                    _buildInfoRow(Icons.location_on, "Location", pet.location),
+                    _buildInfoRow(Icons.info_outline, "Description", pet.description),
+                    const SizedBox(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.teal,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30)),
+                          ),
+                          onPressed: () {
+                            // TODO: Implement favorite logic or event
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Added to Favorites!")),
+                            );
+                          },
+                          icon: const Icon(Icons.favorite_border),
+                          label: const Text("Favorite"),
+                        ),
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.teal,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30)),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => const AdoptionScreen()),
+                            );
+                          },
+                          icon: const Icon(Icons.pets),
+                          label: const Text("Adopt"),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
   }
 }

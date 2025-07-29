@@ -1,38 +1,21 @@
-import 'package:equatable/equatable.dart';
+// features/dashboard/presentation/view_models/dashboard_state.dart
+
+
+
 import 'package:petforpat/features/dashboard/domain/entities/pet_entity.dart';
 
-abstract class DashboardState extends Equatable {
-  const DashboardState();
+abstract class DashboardState {}
 
-  @override
-  List<Object?> get props => [];
-}
+class DashboardInitial extends DashboardState {}
 
-class PetsLoading extends DashboardState {}
+class DashboardLoading extends DashboardState {}
 
-class PetsLoaded extends DashboardState {
+class DashboardLoaded extends DashboardState {
   final List<PetEntity> pets;
-
-  const PetsLoaded(this.pets);
-
-  @override
-  List<Object?> get props => [pets];
+  DashboardLoaded(this.pets);
 }
 
-class PetAdopted extends DashboardState {
-  final String petId;
-
-  const PetAdopted(this.petId);
-
-  @override
-  List<Object?> get props => [petId];
-}
-
-class PetsError extends DashboardState {
+class DashboardError extends DashboardState {
   final String message;
-
-  const PetsError(this.message);
-
-  @override
-  List<Object?> get props => [message];
+  DashboardError(this.message);
 }

@@ -1,42 +1,51 @@
+// features/dashboard/data/models/pet_model.dart
+
 import 'package:hive/hive.dart';
 import 'package:petforpat/features/dashboard/domain/entities/pet_entity.dart';
 
-part 'pet_model.g.dart';
+part 'pet_model.g.dart'; // Hive codegen part
 
-@HiveType(typeId: 1)
-class PetModel extends HiveObject {
+@HiveType(typeId: 0)
+class PetModel extends PetEntity {
   @HiveField(0)
-  String id;
+  @override
+  final String id;
 
   @HiveField(1)
-  String name;
+  @override
+  final String name;
 
   @HiveField(2)
-  String type;
+  @override
+  final String type;
 
   @HiveField(3)
-  int age;
+  @override
+  final int age;
 
   @HiveField(4)
-  String sex;
+  @override
+  final String sex;
 
   @HiveField(5)
-  String breed;
+  @override
+  final String breed;
 
   @HiveField(6)
-  String location;
+  @override
+  final String location;
 
   @HiveField(7)
-  String imageUrl;
+  @override
+  final String imageUrl;
 
   @HiveField(8)
-  bool adopted;
+  @override
+  final String ownerPhoneNumber;
 
   @HiveField(9)
-  String ownerPhoneNumber;
-
-  @HiveField(10)
-  String description;
+  @override
+  final String description;
 
   PetModel({
     required this.id,
@@ -47,60 +56,9 @@ class PetModel extends HiveObject {
     required this.breed,
     required this.location,
     required this.imageUrl,
-    required this.adopted,
     required this.ownerPhoneNumber,
     required this.description,
-  });
-
-  factory PetModel.fromJson(Map<String, dynamic> json) {
-    String rawImageUrl = json['imageUrl'] ?? '';
-    String resolvedImageUrl = rawImageUrl.startsWith('/')
-        ? 'http://192.168.10.70:3001$rawImageUrl'
-        : rawImageUrl;
-
-    // 🛠 Handle MongoDB ObjectId (_id.$oid)
-    String extractId(dynamic idField) {
-      if (idField is Map && idField.containsKey(r'$oid')) {
-        return idField[r'$oid'] ?? '';
-      } else if (idField is String) {
-        return idField;
-      }
-      return '';
-    }
-
-    return PetModel(
-      id: extractId(json['_id']),
-      name: json['name'] ?? '',
-      type: json['type'] ?? '',
-      age: json['age'] ?? 0,
-      sex: json['sex'] ?? '',
-      breed: json['breed'] ?? '',
-      location: json['location'] ?? '',
-      imageUrl: resolvedImageUrl,
-      adopted: json['adopted'] ?? false,
-      ownerPhoneNumber: json['ownerPhoneNumber']?.toString() ?? '',
-      description: json['description'] ?? '',
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'type': type,
-      'age': age,
-      'sex': sex,
-      'breed': breed,
-      'location': location,
-      'imageUrl': imageUrl,
-      'adopted': adopted,
-      'ownerPhoneNumber': ownerPhoneNumber,
-      'description': description,
-    };
-  }
-
-  PetEntity toEntity({int? hiveId}) => PetEntity(
-    hiveId: hiveId ?? (key as int?),
+  }) : super(
     id: id,
     name: name,
     type: type,
@@ -109,22 +67,37 @@ class PetModel extends HiveObject {
     breed: breed,
     location: location,
     imageUrl: imageUrl,
-    adopted: adopted,
     ownerPhoneNumber: ownerPhoneNumber,
     description: description,
   );
 
-  factory PetModel.fromEntity(PetEntity entity) => PetModel(
-    id: entity.id,
-    name: entity.name,
-    type: entity.type,
-    age: entity.age,
-    sex: entity.sex,
-    breed: entity.breed,
-    location: entity.location,
-    imageUrl: entity.imageUrl,
-    adopted: entity.adopted,
-    ownerPhoneNumber: entity.ownerPhoneNumber,
-    description: entity.description,
-  );
+  factory PetModel.fromJson(Map<String, dynamic> json) {
+    return PetModel(
+      id: json['_id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      type: json['type']?.toString() ?? '',
+      age: json['age'] is int
+          ? json['age']
+          : int.tryParse(json['age']?.toString() ?? '') ?? 0,
+      sex: json['sex']?.toString() ?? '',
+      breed: json['breed']?.toString() ?? '',
+      location: json['location']?.toString() ?? '',
+      imageUrl: json['imageUrl']?.toString() ?? '',
+      ownerPhoneNumber: json['ownerPhoneNumber']?.toString() ?? '',
+      description: json['description']?.toString() ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    '_id': id,
+    'name': name,
+    'type': type,
+    'age': age,
+    'sex': sex,
+    'breed': breed,
+    'location': location,
+    'imageUrl': imageUrl,
+    'ownerPhoneNumber': ownerPhoneNumber,
+    'description': description,
+  };
 }

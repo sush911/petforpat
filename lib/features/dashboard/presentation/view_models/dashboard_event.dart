@@ -1,32 +1,15 @@
-import 'package:equatable/equatable.dart';
+// features/dashboard/presentation/view_models/dashboard_event.dart
 
-abstract class DashboardEvent extends Equatable {
-  const DashboardEvent();
+abstract class DashboardEvent {}
 
-  @override
-  List<Object?> get props => [];
-}
+class LoadPetsEvent extends DashboardEvent {
+  final String? search;
+  final String? category;
+  final bool forceRefresh;
 
-class FetchPets extends DashboardEvent {
-  final Map<String, dynamic>? filters;
-
-  const FetchPets({this.filters});
-
-  @override
-  List<Object?> get props => [filters];
-}
-
-class AdoptRequested extends DashboardEvent {
-  final String userId;
-  final String petId;
-  final Map<String, dynamic>? filters;
-
-  const AdoptRequested({
-    required this.userId,
-    required this.petId,
-    this.filters,
+  LoadPetsEvent({
+    this.search,
+    this.category,
+    this.forceRefresh = false,
   });
-
-  @override
-  List<Object?> get props => [userId, petId, filters];
 }

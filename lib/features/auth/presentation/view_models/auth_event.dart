@@ -1,3 +1,4 @@
+// auth_event.dart
 import 'dart:io';
 import 'package:equatable/equatable.dart';
 
@@ -5,8 +6,6 @@ abstract class AuthEvent extends Equatable {
   @override
   List<Object?> get props => [];
 }
-
-class AppStarted extends AuthEvent {}
 
 class RegisterRequested extends AuthEvent {
   final Map<String, dynamic> userData;

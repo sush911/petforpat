@@ -102,24 +102,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> getCurrentUser() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString(_tokenKey);
-
-    if (token == null || token.isEmpty) {
-      throw Exception("No token found");
-    }
-
     try {
-      final response = await dio.get(
-        '/users/profile',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $token',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
+      final response = await dio.get('/users/profile');
       if (response.statusCode == 200) {
         return UserModel.fromJson(response.data);
       } else {
@@ -127,14 +111,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     } on DioException catch (e) {
       if (e.response != null) {
-        throw Exception(e.response?.data['error'] ?? 'Failed to fetch user profile');
+        throw Exception(e.response?.data['message'] ?? 'Failed to fetch user profile');
       } else {
         throw Exception('Network error: ${e.message}');
       }
     }
   }
-
-
 
   @override
   Future<void> loadToken() async {

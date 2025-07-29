@@ -1,261 +1,260 @@
+// features/dashboard/presentation/views/dashboard_home.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:petforpat/features/auth/domain/entities/user_entity.dart'; // Import user entity
-import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart';
-import 'package:petforpat/features/auth/presentation/view_models/auth_state.dart';
-import 'package:petforpat/features/dashboard/domain/entities/pet_entity.dart';
-import 'package:petforpat/features/dashboard/presentation/view_models/dashboard_bloc.dart';
-import 'package:petforpat/features/dashboard/presentation/view_models/dashboard_event.dart';
-import 'package:petforpat/features/dashboard/presentation/view_models/dashboard_state.dart';
-import 'pet_detail_page.dart';
+import 'package:petforpat/features/dashboard/presentation/view_models/pet_bloc.dart';
+import 'package:petforpat/features/dashboard/presentation/view_models/pet_event.dart';
+import 'package:petforpat/features/dashboard/presentation/view_models/pet_state.dart';
+import 'package:petforpat/features/dashboard/presentation/views/pet_detail_page.dart';
 
 class DashboardHome extends StatefulWidget {
-  final UserEntity user;  // Add user here
-
-  const DashboardHome({super.key, required this.user});
+  const DashboardHome({super.key});
 
   @override
   State<DashboardHome> createState() => _DashboardHomeState();
 }
 
 class _DashboardHomeState extends State<DashboardHome> {
-  String? _typeFilter;
-  String? _searchTerm;
-
-  String get _userId => widget.user.id;  // Access user ID from passed user
+  final TextEditingController _searchController = TextEditingController();
+  String selectedCategory = 'All';
 
   @override
   void initState() {
     super.initState();
-    debugPrint('🟢 [initState] Received user ID: $_userId');
-    _fetchPets();
+    // Load initial pets on screen load
+    context.read<PetBloc>().add(LoadPetsEvent());
   }
 
-  void _fetchPets() {
-    final filters = {
-      if (_searchTerm != null && _searchTerm!.isNotEmpty) 'search': _searchTerm,
-      if (_typeFilter != null) 'type': _typeFilter,
-    };
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
-    debugPrint('🔍 [fetchPets] Fetching pets with filters: $filters');
-    context.read<DashboardBloc>().add(FetchPets(filters: filters));
+  String getFullImageUrl(String imageUrl) {
+    if (imageUrl.startsWith('http') || imageUrl.startsWith('https')) {
+      return imageUrl;
+    }
+    return 'http://192.168.10.70:3001$imageUrl';
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        if (state is AuthProfileUpdated) {
-          debugPrint('🟢 [AuthBloc] User profile updated with ID: ${state.user.id}');
-          // Optionally update userId if you want to sync auth changes,
-          // but currently using widget.user directly
-        } else if (state is AuthInitial || state is AuthError) {
-          debugPrint('🔴 [AuthBloc] User logged out or error state: $state');
-          // You may want to handle logout here if needed
-        }
-      },
-      child: Scaffold(
-        backgroundColor: Colors.grey[100],
-        appBar: AppBar(
-          title: const Text('🐾 Find Your New Friend'),
-          centerTitle: true,
-          backgroundColor: Colors.teal,
-          elevation: 3,
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'Search pets by name',
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                onChanged: (val) {
-                  setState(() => _searchTerm = val.trim());
-                  debugPrint('🔠 [Search] Search term changed: $_searchTerm');
-                },
-                onSubmitted: (_) {
-                  debugPrint('🔍 [Search] Search submitted: $_searchTerm');
-                  _fetchPets();
-                },
-                textInputAction: TextInputAction.search,
-              ),
-            ),
-            SizedBox(
-              height: 56,
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                scrollDirection: Axis.horizontal,
-                children: [
-                  _buildFilterChip('Dog', Icons.pets),
-                  const SizedBox(width: 10),
-                  _buildFilterChip('Cat', Icons.pets_outlined),
-                  const SizedBox(width: 10),
-                  _buildFilterChip('Bird', Icons.flutter_dash),
-                ],
-              ),
-            ),
-            const SizedBox(height: 6),
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  debugPrint('🔄 [Refresh] Pull-to-refresh triggered');
-                  _fetchPets();
-                  await Future.delayed(const Duration(milliseconds: 300));
-                },
-                child: BlocConsumer<DashboardBloc, DashboardState>(
-                  listener: (context, state) {
-                    if (state is PetsError) {
-                      debugPrint('❌ [DashboardBloc] PetsError: ${state.message}');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(state.message), backgroundColor: Colors.redAccent),
-                      );
-                    } else if (state is PetAdopted) {
-                      debugPrint('✅ [DashboardBloc] Adoption confirmed');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('✅ Adoption request sent!')),
-                      );
-                      _fetchPets();
-                    }
-                  },
-                  builder: (context, state) {
-                    if (state is PetsLoading) {
-                      debugPrint('⏳ [DashboardBloc] Pets are loading...');
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (state is PetsLoaded) {
-                      final pets = state.pets;
-                      debugPrint('📦 [DashboardBloc] Pets loaded: ${pets.length}');
-                      if (pets.isEmpty) return const Center(child: Text('No pets found.'));
-
-                      return ListView.builder(
-                        padding: const EdgeInsets.only(bottom: 24),
-                        itemCount: pets.length,
-                        itemBuilder: (ctx, i) {
-                          final pet = pets[i];
-                          debugPrint('🐶 [DashboardBloc] Showing pet: ${pet.name}, ID: ${pet.id}');
-                          return PetCard(
-                            pet: pet,
-                            onTap: () {
-                              if (_userId.isEmpty) {
-                                debugPrint('❌ [Navigation] User ID is empty, cannot navigate to details');
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Please login to view details')),
-                                );
-                                return;
-                              }
-
-                              debugPrint('➡️ [Navigation] Navigating to details of ${pet.name} with userId $_userId');
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => PetDetailPage(pet: pet, userId: _userId),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    } else {
-                      debugPrint('❓ [DashboardBloc] Unexpected state: $state');
-                      return const Center(child: Text('Something went wrong.'));
-                    }
-                  },
-                ),
-              ),
-            )
-          ],
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Pet Dashboard"),
+        backgroundColor: Colors.teal,
+        elevation: 4,
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          _buildSearchBar(context),
+          _buildCategoryFilter(context),
+          Expanded(child: _buildPetList(context)),
+        ],
       ),
     );
   }
 
-  Widget _buildFilterChip(String type, IconData icon) {
-    final selected = _typeFilter == type;
-    return ChoiceChip(
-      avatar: Icon(icon, color: selected ? Colors.white : Colors.teal),
-      label: Text(type),
-      selected: selected,
-      onSelected: (sel) {
-        setState(() => _typeFilter = sel ? type : null);
-        debugPrint('📁 [Filter] Filter selected: $_typeFilter');
-        _fetchPets();
-      },
-      selectedColor: Colors.teal,
-      backgroundColor: Colors.white,
-      labelStyle: TextStyle(color: selected ? Colors.white : Colors.black),
-    );
-  }
-}
-
-// ✅ PetCard must be defined outside the state class
-class PetCard extends StatelessWidget {
-  final PetEntity pet;
-  final VoidCallback onTap;
-
-  const PetCard({
-    required this.pet,
-    required this.onTap,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isAdopted = pet.adopted;
-
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 4,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  pet.imageUrl,
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Icon(Icons.pets, size: 80, color: Colors.grey),
+  Widget _buildSearchBar(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: "Search pets...",
+                prefixIcon: const Icon(Icons.search, color: Colors.teal),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide(color: Colors.teal.shade200),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(pet.name, style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: 4),
-                    Text('${pet.breed}, ${pet.age} yrs • ${pet.sex}',
-                        style: Theme.of(context).textTheme.bodySmall),
-                    const SizedBox(height: 4),
-                    Text('📍 ${pet.location}', style: Theme.of(context).textTheme.bodySmall),
-                    const SizedBox(height: 8),
-                    Text(isAdopted ? 'Adopted' : 'Available',
-                        style: TextStyle(
-                          color: isAdopted ? Colors.redAccent : Colors.green,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ],
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide(color: Colors.teal.shade400, width: 2),
                 ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 20),
               ),
-            ],
+              onSubmitted: (_) => _searchPets(),
+            ),
           ),
-        ),
+          const SizedBox(width: 8),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.teal,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            ),
+            onPressed: _searchPets,
+            child: const Text("Go", style: TextStyle(fontWeight: FontWeight.bold)),
+          )
+        ],
       ),
+    );
+  }
+
+  void _searchPets() {
+    context.read<PetBloc>().add(
+      LoadPetsEvent(
+        search: _searchController.text,
+        category: selectedCategory != 'All' ? selectedCategory : null,
+      ),
+    );
+  }
+
+  Widget _buildCategoryFilter(BuildContext context) {
+    final categories = ['All', 'Dog', 'Cat', 'Bird'];
+
+    return SizedBox(
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: categories.length,
+        itemBuilder: (_, i) {
+          final category = categories[i];
+          final isSelected = selectedCategory == category;
+
+          return Padding(
+            padding: const EdgeInsets.only(right: 10.0),
+            child: ChoiceChip(
+              label: Text(category,
+                  style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.teal,
+                      fontWeight: FontWeight.w600)),
+              selected: isSelected,
+              selectedColor: Colors.teal,
+              backgroundColor: Colors.teal.shade50,
+              onSelected: (_) {
+                setState(() {
+                  selectedCategory = category;
+                });
+                _searchPets();
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildPetList(BuildContext context) {
+    return BlocBuilder<PetBloc, PetState>(
+      builder: (context, state) {
+        if (state is PetLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is PetError) {
+          return Center(child: Text(state.message, style: const TextStyle(color: Colors.red)));
+        } else if (state is PetLoaded) {
+          if (state.pets.isEmpty) {
+            return const Center(child: Text("No pets found."));
+          }
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<PetBloc>().add(
+                LoadPetsEvent(
+                  search: _searchController.text,
+                  category: selectedCategory != 'All' ? selectedCategory : null,
+                  forceRefresh: true,
+                ),
+              );
+              await context.read<PetBloc>().stream.firstWhere(
+                    (state) => state is! PetLoading,
+              );
+            },
+            child: ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: state.pets.length,
+              itemBuilder: (context, i) {
+                final pet = state.pets[i];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PetDetailPage(petId: pet.id),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.teal.withOpacity(0.15),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+                          child: Image.network(
+                            getFullImageUrl(pet.imageUrl),
+                            width: 110,
+                            height: 110,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                Container(color: Colors.grey.shade300, width: 110, height: 110),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  pet.name,
+                                  style: const TextStyle(
+                                      fontSize: 20, fontWeight: FontWeight.bold, color: Colors.teal),
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.pets, size: 18, color: Colors.teal),
+                                    const SizedBox(width: 6),
+                                    Text(pet.breed, style: const TextStyle(fontWeight: FontWeight.w600)),
+                                    const SizedBox(width: 14),
+                                    const Icon(Icons.cake, size: 18, color: Colors.teal),
+                                    const SizedBox(width: 6),
+                                    Text('${pet.age} yrs'),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.location_on, size: 18, color: Colors.teal),
+                                    const SizedBox(width: 6),
+                                    Text(pet.location),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const Padding(
+                          padding: EdgeInsets.only(right: 14),
+                          child: Icon(Icons.arrow_forward_ios, color: Colors.teal, size: 18),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        }
+        return const SizedBox();
+      },
     );
   }
 }

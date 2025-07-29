@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:petforpat/features/auth/domain/entities/user_entity.dart'; // Import UserEntity
-
+import 'package:petforpat/features/adoption/presentation/views/adoption.dart';
 import 'package:petforpat/features/auth/presentation/views/profile_view.dart';
 import 'package:petforpat/features/favorite/presentation/views/favorite_screen.dart';
 import 'package:petforpat/features/notification/presentation/views/notification.dart';
 import 'dashboard_home.dart';
 
 class DashboardView extends StatefulWidget {
-  final UserEntity user;  // <-- Add this
-
-  const DashboardView({super.key, required this.user});  // <-- Update constructor
+  const DashboardView({super.key});
 
   @override
   State<DashboardView> createState() => _DashboardViewState();
@@ -27,14 +24,12 @@ class _DashboardViewState extends State<DashboardView> {
   @override
   void initState() {
     super.initState();
-
-    debugPrint('🟢 [DashboardView] Received user ID: ${widget.user.id}');
-
     _screens = [
-      DashboardHome(user: widget.user),  // <-- Pass user down here
+      DashboardHome(),
       const FavoriteScreen(),
+      const AdoptionScreen(),
       const NotificationScreen(),
-      ProfileView(user: widget.user),    // Pass user if needed
+      const ProfileView(),
     ];
   }
 
@@ -65,6 +60,10 @@ class _DashboardViewState extends State<DashboardView> {
             BottomNavigationBarItem(
               icon: Icon(Icons.favorite),
               label: 'Favorite',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.message),
+              label: 'Adoption',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.notifications),

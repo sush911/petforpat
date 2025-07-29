@@ -8,7 +8,7 @@ part of 'pet_model.dart';
 
 class PetModelAdapter extends TypeAdapter<PetModel> {
   @override
-  final int typeId = 1;
+  final int typeId = 0;
 
   @override
   PetModel read(BinaryReader reader) {
@@ -25,16 +25,15 @@ class PetModelAdapter extends TypeAdapter<PetModel> {
       breed: fields[5] as String,
       location: fields[6] as String,
       imageUrl: fields[7] as String,
-      adopted: fields[8] as bool,
-      ownerPhoneNumber: fields[9] as String,
-      description: fields[10] as String,
+      ownerPhoneNumber: fields[8] as String,
+      description: fields[9] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, PetModel obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -52,10 +51,8 @@ class PetModelAdapter extends TypeAdapter<PetModel> {
       ..writeByte(7)
       ..write(obj.imageUrl)
       ..writeByte(8)
-      ..write(obj.adopted)
-      ..writeByte(9)
       ..write(obj.ownerPhoneNumber)
-      ..writeByte(10)
+      ..writeByte(9)
       ..write(obj.description);
   }
 

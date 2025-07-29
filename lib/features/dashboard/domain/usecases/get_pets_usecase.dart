@@ -2,10 +2,19 @@ import 'package:petforpat/features/dashboard/domain/entities/pet_entity.dart';
 import 'package:petforpat/features/dashboard/domain/repositories/pet_repository.dart';
 
 class GetPetsUseCase {
-  final PetRepository repo;
-  GetPetsUseCase(this.repo);
+  final PetRepository repository;
 
-  Future<List<PetEntity>> call({Map<String, dynamic>? filters}) {
-    return repo.getPets(filters: filters);
+  GetPetsUseCase(this.repository);
+
+  Future<List<PetEntity>> call({
+    String? search,
+    String? category,
+    bool forceRefresh = false,
+  }) {
+    return repository.getPets(
+      search: search,
+      category: category,
+      forceRefresh: forceRefresh,
+    );
   }
 }

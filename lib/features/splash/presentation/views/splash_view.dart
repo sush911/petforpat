@@ -1,51 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:petforpat/features/splash/presentation/view_models/splash_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeIn;
-  bool _hasNavigated = false;
 
   @override
   void initState() {
     super.initState();
-    print('SplashScreen: initState called');
 
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    // Call the cubit check
+    // ✅ Call navigation after build is fully complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SplashCubit>().checkLoginStatus();
+      _navigateAfterDelay();
     });
+  }
+
+  Future<void> _navigateAfterDelay() async {
+    await Future.delayed(const Duration(seconds: 2));
+
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('auth_token');
+
+    if (!mounted) return;
+
+    if (token != null && token.isNotEmpty) {
+      Navigator.of(context).pushReplacementNamed('/dashboard home');
+    } else {
+      Navigator.of(context).pushReplacementNamed('/login');
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
-  }
-
-  void _navigateOnce(String routeName) async {
-    if (_hasNavigated) {
-      print('SplashScreen: already navigated, ignoring.');
-      return;
-    }
-    _hasNavigated = true;
-
-    print('SplashScreen: navigating to $routeName');
-    await Future.delayed(const Duration(milliseconds: 1200));
-    if (!mounted) return;
-    Navigator.of(context).pushReplacementNamed(routeName);
   }
 
   @override
@@ -69,53 +73,42 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         child: SafeArea(
           child: FadeTransition(
             opacity: _fadeIn,
-            child: BlocListener<SplashCubit, SplashState>(
-              listener: (context, state) {
-                print('SplashScreen: SplashCubit state changed to $state');
-                if (state is SplashAuthenticated) {
-                  _navigateOnce('/dashboard');
-                } else if (state is SplashUnauthenticated) {
-                  _navigateOnce('/login');
-                }
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'PetForPat',
-                    style: TextStyle(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 2,
-                      shadows: const [
-                        Shadow(
-                          blurRadius: 10,
-                          color: Colors.black45,
-                          offset: Offset(3, 3),
-                        ),
-                      ],
-                    ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: logoSize,
                   ),
-                  const SizedBox(height: 24),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: logoSize),
-                    child: Image.asset(
-                      'assets/logo/pet.jpg',
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) {
-                        print('Error loading splash image: $error');
-                        return const Icon(Icons.error, size: 80, color: Colors.red);
-                      },
-                    ),
+                  child: Image.asset(
+                    'assets/logo/pet.jpg',
+                    fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 40),
-                  const CircularProgressIndicator(
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Pet Adoption',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.w900,
                     color: Colors.white,
-                    strokeWidth: 4,
+                    letterSpacing: 1.5,
+                    shadows: const [
+                      Shadow(
+                        blurRadius: 10,
+                        color: Colors.black45,
+                        offset: Offset(3, 3),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 40),
+                const CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 4,
+                ),
+              ],
             ),
           ),
         ),

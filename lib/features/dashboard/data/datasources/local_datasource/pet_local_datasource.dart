@@ -1,33 +1,19 @@
 import 'package:hive/hive.dart';
 import 'package:petforpat/features/dashboard/data/models/pet_model.dart';
 
-abstract class PetLocalDataSource {
-  Future<void> cachePetList(List<PetModel> pets);
-  Future<List<PetModel>> getCachedPetList();
-}
+class PetLocalDatasource {
+  final Box<PetModel> petBox;
+  PetLocalDatasource(this.petBox);
 
-class PetLocalDataSourceImpl implements PetLocalDataSource {
-  static const String boxName = 'petsBox';
+  List<PetModel> getCachedPets() => petBox.values.toList();
 
-  Future<Box<PetModel>> _openBox() async {
-    return await Hive.openBox<PetModel>(boxName);
-  }
+  Future<void> cachePets(List<PetModel> pets) async {
+    await petBox.clear();
 
-  @override
-  Future<void> cachePetList(List<PetModel> pets) async {
-    final box = await _openBox();
-    await box.clear();
-    await box.addAll(pets);
-    // Optionally:
-    // await box.close();
-  }
+    final Map<String, PetModel> petsMap = {
+      for (var pet in pets) pet.id: pet,
+    };
 
-  @override
-  Future<List<PetModel>> getCachedPetList() async {
-    final box = await _openBox();
-    final pets = box.values.toList();
-    // Optionally:
-    // await box.close();
-    return pets;
+    await petBox.putAll(petsMap);
   }
 }
