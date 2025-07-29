@@ -8,11 +8,22 @@ class FavoriteCubit extends Cubit<FavoriteState> {
 
   FavoriteCubit(this.uc) : super(FavoriteState());
 
-  Future<void> loadFavorites() async {
+  Future<void> loadFavorites({String? category, String? search}) async {
     emit(FavoriteState(loading: true, pets: state.pets));
     try {
-      final pets = await uc();
-      emit(FavoriteState(pets: pets));
+      final allPets = await uc();
+
+      // Filter by category/type and search
+      final filteredPets = allPets.where((pet) {
+        final matchesCategory =
+            category == null || category == 'All' || pet.type.toLowerCase() == category.toLowerCase();
+        final matchesSearch = search == null || search.isEmpty
+            || pet.name.toLowerCase().contains(search.toLowerCase());
+
+        return matchesCategory && matchesSearch;
+      }).toList();
+
+      emit(FavoriteState(pets: filteredPets));
     } catch (e) {
       emit(FavoriteState(error: e.toString(), pets: state.pets));
     }
@@ -37,4 +48,3 @@ class FavoriteCubit extends Cubit<FavoriteState> {
     emit(FavoriteState(pets: updatedPets));
   }
 }
-
