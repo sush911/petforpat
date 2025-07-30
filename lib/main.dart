@@ -24,6 +24,10 @@ import 'package:petforpat/features/dashboard/presentation/views/dashboard_view.d
 // Favorite
 import 'package:petforpat/features/favorite/presentation/view_models/favorite_cubit.dart';
 
+// Adoption
+import 'package:petforpat/features/adoption/presentation/view_models/adoption_bloc.dart';
+import 'package:petforpat/features/adoption/presentation/views/adoption_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -60,6 +64,9 @@ void main() async {
         BlocProvider<PetBloc>(
           create: (_) => sl<PetBloc>()..add(LoadPetsEvent()),
         ),
+        BlocProvider<AdoptionBloc>( // Added AdoptionBloc provider
+          create: (_) => sl<AdoptionBloc>(),
+        ),
       ],
       child: const PetForPatApp(),
     ),
@@ -84,6 +91,14 @@ class PetForPatApp extends StatelessWidget {
         '/signup': (context) => const SignupView(),
         '/dashboard home': (context) => const DashboardView(),
         '/profile': (context) => const ProfileView(),
+        '/adoption': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return AdoptionScreen(
+            petId: args['petId'],
+            petName: args['petName'],
+            petType: args['petType'],
+          );
+        },
       },
       onUnknownRoute: (_) => MaterialPageRoute(
         builder: (_) => const SplashScreen(),

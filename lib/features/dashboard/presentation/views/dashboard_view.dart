@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:petforpat/features/adoption/presentation/views/adoption.dart';
+import 'package:petforpat/features/adoption/presentation/views/adoption_screen.dart';
 import 'package:petforpat/features/auth/presentation/views/profile_view.dart';
 import 'package:petforpat/features/favorite/presentation/views/favorite_screen.dart';
 import 'package:petforpat/features/notification/presentation/views/notification.dart';
@@ -27,7 +27,7 @@ class _DashboardViewState extends State<DashboardView> {
     _screens = [
       DashboardHome(),
       const FavoriteScreen(),
-      const AdoptionScreen(),
+      //const AdoptionScreen(),
       const NotificationScreen(),
       const ProfileView(),
     ];
@@ -60,10 +60,6 @@ class _DashboardViewState extends State<DashboardView> {
             BottomNavigationBarItem(
               icon: Icon(Icons.favorite),
               label: 'Favorite',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.message),
-              label: 'Adopt',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.notifications),

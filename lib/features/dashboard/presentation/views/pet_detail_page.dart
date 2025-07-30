@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:petforpat/app/service_locator/service_locator.dart';
-import 'package:petforpat/features/adoption/presentation/views/adoption.dart';
+import 'package:petforpat/features/adoption/presentation/views/adoption_screen.dart';
 import 'package:petforpat/features/dashboard/domain/entities/pet_entity.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/pet_bloc.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/pet_event.dart';
@@ -65,7 +65,8 @@ class _PetDetailPageState extends State<PetDetailPage> {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => sl<PetDetailBloc>()..add(LoadPetDetailEvent(widget.petId)),
+          create: (_) =>
+          sl<PetDetailBloc>()..add(LoadPetDetailEvent(widget.petId)),
         ),
         BlocProvider.value(
           value: context.read<FavoriteCubit>(),
@@ -90,9 +91,13 @@ class _PetDetailPageState extends State<PetDetailPage> {
               icon: const Icon(Icons.pets),
               tooltip: "Adoption",
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const AdoptionScreen()),
+                // We don’t have pet info here, better not navigate without pet details.
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Please open a pet detail to adopt!',
+                    ),
+                  ),
                 );
               },
             ),
@@ -228,8 +233,12 @@ class _PetDetailPageState extends State<PetDetailPage> {
                                 ),
                               ),
                               onPressed: () async {
-                                await context.read<FavoriteCubit>().toggleFavorite(pet);
-                                final newStatus = await context.read<FavoriteCubit>().isFavorite(pet.id);
+                                await context
+                                    .read<FavoriteCubit>()
+                                    .toggleFavorite(pet);
+                                final newStatus = await context
+                                    .read<FavoriteCubit>()
+                                    .isFavorite(pet.id);
                                 setState(() {
                                   isFavorite = newStatus;
                                 });
@@ -244,7 +253,9 @@ class _PetDetailPageState extends State<PetDetailPage> {
                                 );
                               },
                               icon: Icon(
-                                isFavorite ? Icons.favorite : Icons.favorite_border,
+                                isFavorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
                                 color: isFavorite ? Colors.red : Colors.white,
                               ),
                               label: const Text("Favorite"),
@@ -261,7 +272,11 @@ class _PetDetailPageState extends State<PetDetailPage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (_) => const AdoptionScreen(),
+                                    builder: (_) => AdoptionScreen(
+                                      petId: pet.id,
+                                      petName: pet.name,
+                                      petType: pet.type, // or pet.petType if that's the field
+                                    ),
                                   ),
                                 );
                               },
@@ -284,4 +299,5 @@ class _PetDetailPageState extends State<PetDetailPage> {
     );
   }
 }
+
 
