@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
 import 'package:petforpat/app/service_locator/service_locator.dart';
 import 'package:petforpat/app/shared_pref/shared_preferences.dart';
+import 'package:petforpat/core/network/notificatiton_socket_service.dart';
 
 // Auth
 import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart';
@@ -10,7 +13,6 @@ import 'package:petforpat/features/auth/data/datasources/remote_datasource/auth_
 import 'package:petforpat/features/auth/presentation/views/login_view.dart';
 import 'package:petforpat/features/auth/presentation/views/signup_view.dart';
 import 'package:petforpat/features/auth/presentation/views/profile_view.dart';
-import 'package:petforpat/features/notification/domain/usecases/get_notification_usecase.dart';
 
 // Splash
 import 'package:petforpat/features/splash/presentation/view_models/splash_cubit.dart';
@@ -31,30 +33,26 @@ import 'package:petforpat/features/adoption/presentation/views/adoption_screen.d
 
 // Notification
 import 'package:petforpat/features/notification/presentation/view_models/notification_bloc.dart';
+import 'package:petforpat/features/notification/domain/usecases/get_notification_usecase.dart';
+import 'package:petforpat/features/notification/domain/usecases/delete_notification_usecase.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive
   await Hive.initFlutter();
   Hive.registerAdapter(PetModelAdapter());
-
-  // Open boxes
   await Hive.openBox<PetModel>('petBox');
   await Hive.openBox<PetModel>('favoriteBox');
 
-  // Setup DI
   await setupServiceLocator();
-
-  // Load token to Dio
   await sl<AuthRemoteDataSource>().loadToken();
 
-  // Shared preferences helper
   final sharedPrefsHelper = SharedPrefsHelper();
 
   runApp(
-    MultiBlocProvider(
+    MultiProvider(
       providers: [
+        // BLoCs first
         BlocProvider<AuthBloc>(
           create: (_) => sl<AuthBloc>(),
         ),
@@ -70,10 +68,17 @@ void main() async {
         BlocProvider<AdoptionBloc>(
           create: (_) => sl<AdoptionBloc>(),
         ),
-
-        // NotificationBloc provider with positional GetNotificationsUseCase
         BlocProvider<NotificationBloc>(
-          create: (_) => NotificationBloc(sl<GetNotificationsUseCase>()),
+          create: (_) => NotificationBloc(
+            sl<GetNotificationsUseCase>(),
+            sl<DeleteNotificationUseCase>(),
+          ),
+        ),
+
+        // Provide socket service after NotificationBloc is ready
+        ChangeNotifierProxyProvider<NotificationBloc, NotificationSocketService>(
+          create: (_) => NotificationSocketService(sl<NotificationBloc>()),
+          update: (_, bloc, __) => NotificationSocketService(bloc),
         ),
       ],
       child: const PetForPatApp(),
@@ -86,12 +91,15 @@ class PetForPatApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Optional: call initSocket with no userId
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<NotificationSocketService>(context, listen: false).initSocket(); // userId is optional now
+    });
+
     return MaterialApp(
       title: 'PetForPat',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-      ),
+      theme: ThemeData(primarySwatch: Colors.teal),
       initialRoute: '/splash',
       routes: {
         '/splash': (context) => const SplashScreen(),

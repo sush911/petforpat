@@ -11,14 +11,13 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   @override
   Future<List<NotificationEntity>> fetchNotifications(String userId) async {
     final response = await dio.get('/notifications/$userId');
+    final data = List<Map<String, dynamic>>.from(response.data);
 
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonList = response.data;
-      return jsonList
-          .map((json) => NotificationModel.fromJson(json).toEntity())
-          .toList();
-    } else {
-      throw Exception('Failed to fetch notifications');
-    }
+    return data.map((json) => NotificationModel.fromJson(json).toEntity()).toList();
+  }
+
+  @override
+  Future<void> deleteNotification(String notificationId) async {
+    await dio.delete('/notifications/$notificationId');
   }
 }

@@ -3,4 +3,5 @@ import 'package:petforpat/features/notification/domain/entities/notification_ent
 
 abstract class NotificationRemoteDataSource {
   Future<List<NotificationEntity>> fetchNotifications(String userId);
+  Future<void> deleteNotification(String notificationId);
 }

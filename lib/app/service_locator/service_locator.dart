@@ -19,6 +19,7 @@ import 'package:petforpat/features/dashboard/domain/usecases/get_pet_usecase.dar
 import 'package:petforpat/features/dashboard/domain/usecases/get_pets_usecase.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/pet_bloc.dart';
 
+
 // Favorite
 import 'package:petforpat/features/favorite/domain/repositories/favorite_repository.dart';
 import 'package:petforpat/features/favorite/data/repositories/favorite_repository_impl.dart';
@@ -37,6 +38,7 @@ import 'package:petforpat/features/notification/data/datasources/remote_datasour
 import 'package:petforpat/features/notification/data/datasources/remote_datasource/notitifcation_remote_datasource_impl.dart';
 import 'package:petforpat/features/notification/data/repositories/notification_repository_impl.dart';
 import 'package:petforpat/features/notification/domain/repositories/notification_repository.dart';
+import 'package:petforpat/features/notification/domain/usecases/delete_notification_usecase.dart';
 import 'package:petforpat/features/notification/domain/usecases/get_notification_usecase.dart';
 import 'package:petforpat/features/notification/presentation/view_models/notification_bloc.dart';
 
@@ -56,13 +58,13 @@ Future<void> setupServiceLocator() async {
   final dio = sl<Dio>();
   dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
-  // Auth
+  // ---------------- Auth ----------------
   sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(sl()));
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
   sl.registerFactory(() => AuthBloc(authRepository: sl(), updateProfileUseCase: sl()));
 
-  // Pets
+  // ---------------- Pets ----------------
   if (!Hive.isAdapterRegistered(0)) {
     Hive.registerAdapter(PetModelAdapter());
   }
@@ -76,9 +78,9 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton(() => GetPetUseCase(sl()));
 
   sl.registerFactory(() => PetBloc(getPetsUseCase: sl()));
-  sl.registerFactory(() => PetDetailBloc(getPetUseCase: sl())); // if used
+  sl.registerFactory(() => PetDetailBloc(getPetUseCase: sl())); // ✅ FIXED: Register missing bloc
 
-  // Favorite
+  // ---------------- Favorite ----------------
   final favoriteBox = await Hive.openBox<PetModel>('favoriteBox');
   sl.registerLazySingleton(() => favoriteBox);
 
@@ -86,20 +88,21 @@ Future<void> setupServiceLocator() async {
   sl.registerLazySingleton(() => GetFavoritesUseCase(sl()));
   sl.registerFactory(() => FavoriteCubit(sl()));
 
-  // Adoption
+  // ---------------- Adoption ----------------
   sl.registerLazySingleton<AdoptionRemoteDataSource>(() => AdoptionRemoteDataSourceImpl(sl()));
   sl.registerLazySingleton<AdoptionRepository>(() => AdoptionRepositoryImpl(sl()));
   sl.registerLazySingleton(() => SubmitAdoptionRequestUseCase(sl()));
   sl.registerFactory(() => AdoptionBloc(sl()));
 
-  // Notification
+  // ---------------- Notification ----------------
   sl.registerLazySingleton<NotificationRemoteDataSource>(() => NotificationRemoteDataSourceImpl(sl()));
   sl.registerLazySingleton<NotificationRepository>(() => NotificationRepositoryImpl(sl()));
+
   sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
-  sl.registerFactory(() => NotificationBloc(sl()));
+  sl.registerLazySingleton(() => DeleteNotificationUseCase(sl()));
+
+  sl.registerFactory(() => NotificationBloc(
+    sl<GetNotificationsUseCase>(),
+    sl<DeleteNotificationUseCase>(),
+  ));
 }
-
-
-
-
-
