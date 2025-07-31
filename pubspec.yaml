@@ -18,6 +18,7 @@ dependencies:
 
   # New dependencies
   sensors_plus: ^4.0.0
+  audioplayers: ^5.2.0
 
   #shake: ^1.0.0
   # State Management
@@ -93,6 +94,7 @@ flutter:
     - assets/images/
     - assets/logo/
     - assets/fonts/
+    - assets/sounds/notify.mp3
 
   fonts:
     - family: Roboto

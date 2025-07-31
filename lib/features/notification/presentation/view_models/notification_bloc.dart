@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:petforpat/core/utils/notification_sound_helper.dart'; // 👈 Add this
 import 'package:petforpat/features/notification/domain/usecases/get_notification_usecase.dart';
 import 'package:petforpat/features/notification/domain/usecases/delete_notification_usecase.dart';
 import 'package:petforpat/features/notification/presentation/view_models/notification_event.dart';
@@ -27,6 +28,10 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         final updated = [event.notification.toEntity(), ...current];
         emit(NotificationLoaded(updated));
       }
+
+      // 🔊 Play sound
+      NotificationSoundHelper.playSound();
+      print("🔔 Playing notification sound...");
     });
 
     on<DeleteNotification>((event, emit) async {
@@ -43,3 +48,5 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     });
   }
 }
+
+
