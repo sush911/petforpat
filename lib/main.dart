@@ -10,6 +10,7 @@ import 'package:petforpat/features/auth/data/datasources/remote_datasource/auth_
 import 'package:petforpat/features/auth/presentation/views/login_view.dart';
 import 'package:petforpat/features/auth/presentation/views/signup_view.dart';
 import 'package:petforpat/features/auth/presentation/views/profile_view.dart';
+import 'package:petforpat/features/notification/domain/usecases/get_notification_usecase.dart';
 
 // Splash
 import 'package:petforpat/features/splash/presentation/view_models/splash_cubit.dart';
@@ -27,6 +28,9 @@ import 'package:petforpat/features/favorite/presentation/view_models/favorite_cu
 // Adoption
 import 'package:petforpat/features/adoption/presentation/view_models/adoption_bloc.dart';
 import 'package:petforpat/features/adoption/presentation/views/adoption_screen.dart';
+
+// Notification
+import 'package:petforpat/features/notification/presentation/view_models/notification_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,7 +52,6 @@ void main() async {
   // Shared preferences helper
   final sharedPrefsHelper = SharedPrefsHelper();
 
-  // Run app
   runApp(
     MultiBlocProvider(
       providers: [
@@ -64,8 +67,13 @@ void main() async {
         BlocProvider<PetBloc>(
           create: (_) => sl<PetBloc>()..add(LoadPetsEvent()),
         ),
-        BlocProvider<AdoptionBloc>( // Added AdoptionBloc provider
+        BlocProvider<AdoptionBloc>(
           create: (_) => sl<AdoptionBloc>(),
+        ),
+
+        // NotificationBloc provider with positional GetNotificationsUseCase
+        BlocProvider<NotificationBloc>(
+          create: (_) => NotificationBloc(sl<GetNotificationsUseCase>()),
         ),
       ],
       child: const PetForPatApp(),

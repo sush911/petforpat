@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:petforpat/features/adoption/presentation/views/adoption_screen.dart';
 import 'package:petforpat/features/auth/presentation/views/profile_view.dart';
 import 'package:petforpat/features/favorite/presentation/views/favorite_screen.dart';
-import 'package:petforpat/features/notification/presentation/views/notification.dart';
+import 'package:petforpat/features/notification/presentation/views/notification_view.dart';
+import 'package:petforpat/features/notification/presentation/view_models/notification_bloc.dart';
+import 'package:petforpat/app/service_locator/service_locator.dart'; // for sl
 import 'dashboard_home.dart';
 
 class DashboardView extends StatefulWidget {
@@ -27,8 +30,11 @@ class _DashboardViewState extends State<DashboardView> {
     _screens = [
       DashboardHome(),
       const FavoriteScreen(),
-      //const AdoptionScreen(),
-      const NotificationScreen(),
+      // Wrap NotificationView with NotificationBloc provider
+      BlocProvider<NotificationBloc>(
+        create: (_) => sl<NotificationBloc>(),
+        child: const NotificationView(),
+      ),
       const ProfileView(),
     ];
   }
@@ -75,4 +81,3 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 }
-

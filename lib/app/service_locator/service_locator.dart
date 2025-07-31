@@ -32,10 +32,18 @@ import 'package:petforpat/features/adoption/domain/repositories/adoption_reposit
 import 'package:petforpat/features/adoption/domain/usecases/submit_adoption_request.dart';
 import 'package:petforpat/features/adoption/presentation/view_models/adoption_bloc.dart';
 
+// Notification
+import 'package:petforpat/features/notification/data/datasources/remote_datasource/notification_remote_datasource.dart';
+import 'package:petforpat/features/notification/data/datasources/remote_datasource/notitifcation_remote_datasource_impl.dart';
+import 'package:petforpat/features/notification/data/repositories/notification_repository_impl.dart';
+import 'package:petforpat/features/notification/domain/repositories/notification_repository.dart';
+import 'package:petforpat/features/notification/domain/usecases/get_notification_usecase.dart';
+import 'package:petforpat/features/notification/presentation/view_models/notification_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> setupServiceLocator() async {
-  // Dio with base URL, timeouts, and JSON headers
+  // Dio HTTP client
   sl.registerLazySingleton(() => Dio(
     BaseOptions(
       baseUrl: 'http://192.168.10.70:3001/api',
@@ -44,43 +52,54 @@ Future<void> setupServiceLocator() async {
       headers: {'Content-Type': 'application/json'},
     ),
   ));
+
   final dio = sl<Dio>();
   dio.interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
-  // Auth feature registrations
+  // Auth
   sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(sl()));
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(sl()));
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
   sl.registerFactory(() => AuthBloc(authRepository: sl(), updateProfileUseCase: sl()));
 
-  // Hive: Register PetModel adapter only once
+  // Pets
   if (!Hive.isAdapterRegistered(0)) {
     Hive.registerAdapter(PetModelAdapter());
   }
-
-  // Pet local datasource with Hive box
   final petBox = await Hive.openBox<PetModel>('petBox');
   sl.registerLazySingleton(() => PetLocalDatasource(petBox));
 
-  // Pet feature registrations
   sl.registerLazySingleton<PetRemoteDataSource>(() => PetRemoteDataSourceImpl(sl()));
   sl.registerLazySingleton<PetRepository>(() => PetRepositoryImpl(sl(), sl()));
+
   sl.registerLazySingleton(() => GetPetsUseCase(sl()));
   sl.registerLazySingleton(() => GetPetUseCase(sl()));
-  sl.registerFactory(() => PetBloc(getPetsUseCase: sl()));
-  sl.registerFactory(() => PetDetailBloc(getPetUseCase: sl()));
 
-  // Favorite feature with Hive box
+  sl.registerFactory(() => PetBloc(getPetsUseCase: sl()));
+  sl.registerFactory(() => PetDetailBloc(getPetUseCase: sl())); // if used
+
+  // Favorite
   final favoriteBox = await Hive.openBox<PetModel>('favoriteBox');
   sl.registerLazySingleton(() => favoriteBox);
+
   sl.registerLazySingleton<FavoriteRepository>(() => FavoriteRepositoryImpl(favoriteBox));
   sl.registerLazySingleton(() => GetFavoritesUseCase(sl()));
   sl.registerFactory(() => FavoriteCubit(sl()));
 
-  // Adoption feature registrations
+  // Adoption
   sl.registerLazySingleton<AdoptionRemoteDataSource>(() => AdoptionRemoteDataSourceImpl(sl()));
   sl.registerLazySingleton<AdoptionRepository>(() => AdoptionRepositoryImpl(sl()));
   sl.registerLazySingleton(() => SubmitAdoptionRequestUseCase(sl()));
-  // Fix here: pass use case as positional argument, NOT named
   sl.registerFactory(() => AdoptionBloc(sl()));
+
+  // Notification
+  sl.registerLazySingleton<NotificationRemoteDataSource>(() => NotificationRemoteDataSourceImpl(sl()));
+  sl.registerLazySingleton<NotificationRepository>(() => NotificationRepositoryImpl(sl()));
+  sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
+  sl.registerFactory(() => NotificationBloc(sl()));
 }
+
+
+
+
+
