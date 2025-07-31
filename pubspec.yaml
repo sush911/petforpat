@@ -72,6 +72,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_launcher_icons: ^0.13.1
+
   # Existing dev dependencies
   flutter_lints: ^5.0.0
   flutter_dotenv: ^5.0.2
@@ -108,3 +110,11 @@ flutter:
     - family: OpenSans
       fonts:
         - asset: assets/fonts/opensansmedium.ttf
+
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+  remove_alpha_ios: true
+

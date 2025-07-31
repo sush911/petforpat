@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:petforpat/app/service_locator/service_locator.dart';
+import 'package:petforpat/app/theme/theme_cubit.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/pet_bloc.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/pet_event.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/pet_state.dart';
 import 'package:petforpat/features/dashboard/presentation/views/pet_detail_page.dart';
+
+import 'package:petforpat/main.dart' show ThemeCubit;
 
 class DashboardHome extends StatefulWidget {
   const DashboardHome({super.key});
@@ -21,7 +24,7 @@ class _DashboardHomeState extends State<DashboardHome> {
   void initState() {
     super.initState();
     context.read<PetBloc>().add(LoadPetsEvent());
-    _searchController.addListener(_triggerSearch); // Listen as user types
+    _searchController.addListener(_triggerSearch);
   }
 
   @override
@@ -56,13 +59,24 @@ class _DashboardHomeState extends State<DashboardHome> {
       'All': null,
       'Dog': Icons.pets,
       'Cat': Icons.pets,
-      'Bird': Icons.travel_explore, // Replace with bird icon if you have one
+      'Bird': Icons.travel_explore,
     };
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pet Dashboard'),
         backgroundColor: Colors.teal,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Theme.of(context).brightness == Brightness.dark
+                  ? Icons.light_mode
+                  : Icons.dark_mode,
+            ),
+            tooltip: 'Toggle Theme',
+            onPressed: () => context.read<ThemeCubit>().toggleTheme(),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
@@ -83,8 +97,6 @@ class _DashboardHomeState extends State<DashboardHome> {
                 ),
               ),
             ),
-
-            // Category chips with icons
             SizedBox(
               height: 50,
               child: ListView(
@@ -123,9 +135,7 @@ class _DashboardHomeState extends State<DashboardHome> {
                 }).toList(),
               ),
             ),
-
             const Divider(height: 1),
-
             Expanded(
               child: BlocBuilder<PetBloc, PetState>(
                 builder: (context, state) {

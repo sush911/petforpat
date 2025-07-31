@@ -81,13 +81,13 @@ class _SplashScreenState extends State<SplashScreen>
                     maxWidth: logoSize,
                   ),
                   child: Image.asset(
-                    'assets/logo/pet.jpg',
+                    'assets/logo/logopet.png',
                     fit: BoxFit.contain,
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Pet Adoption',
+                  'PetForPat',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: fontSize,

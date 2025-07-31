@@ -1,8 +1,10 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:petforpat/features/dashboard/presentation/views/pet_detail_page.dart';
 import 'package:petforpat/features/favorite/presentation/view_models/favorite_cubit.dart';
 import 'package:petforpat/features/favorite/presentation/view_models/favorite_state.dart';
+import 'package:petforpat/app/theme/theme_cubit.dart';
 
 class FavoriteScreen extends StatefulWidget {
   const FavoriteScreen({Key? key}) : super(key: key);
@@ -29,9 +31,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     super.dispose();
   }
 
-  void _triggerSearch() {
-    _loadFilteredFavorites();
-  }
+  void _triggerSearch() => _loadFilteredFavorites();
 
   void _loadFilteredFavorites() {
     context.read<FavoriteCubit>().loadFavorites(
@@ -50,8 +50,8 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   Widget build(BuildContext context) {
     final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
     final crossAxisCount = isTablet ? 2 : 1;
-    final cardHeight = isTablet ? 180.0 : 110.0;
-    final imageWidth = isTablet ? 180.0 : 100.0;
+    final themeCubit = context.watch<ThemeCubit>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final Map<String, IconData?> categoryIcons = {
       'All': null,
@@ -64,10 +64,18 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       appBar: AppBar(
         title: const Text('Favorites'),
         backgroundColor: Colors.teal,
+        actions: [
+          IconButton(
+            tooltip: isDark ? 'Light Mode' : 'Dark Mode',
+            icon: Icon(isDark ? Icons.wb_sunny : Icons.nightlight_round),
+            onPressed: () => themeCubit.toggleTheme(),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
           children: [
+            // Search Field
             Padding(
               padding: const EdgeInsets.all(12),
               child: TextField(
@@ -76,7 +84,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   hintText: 'Search favorites...',
                   prefixIcon: Icon(Icons.search, color: Colors.teal.shade700),
                   filled: true,
-                  fillColor: Colors.teal.shade50,
+                  fillColor: Colors.teal.shade50.withOpacity(0.3),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30),
                     borderSide: BorderSide.none,
@@ -85,7 +93,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               ),
             ),
 
-            // Category filter chips
+            // Category Chips
             SizedBox(
               height: 50,
               child: ListView(
@@ -114,9 +122,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                         _loadFilteredFavorites();
                       },
                       selectedColor: Colors.teal,
-                      backgroundColor: Colors.grey.shade200,
+                      backgroundColor: Colors.grey.shade300,
                       labelStyle: TextStyle(
-                        color: selected ? Colors.white : Colors.teal,
+                        color: selected ? Colors.white : Colors.teal.shade700,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -125,112 +133,135 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
               ),
             ),
 
-            const Divider(height: 1),
+            const Divider(),
 
-            // Pet cards
+            // Pet Cards
             Expanded(
               child: BlocBuilder<FavoriteCubit, FavoriteState>(
                 builder: (context, state) {
-                  if (state.loading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (state.error != null) {
-                    return Center(child: Text(state.error!));
-                  }
-                  if (state.pets.isEmpty) {
-                    return const Center(child: Text('No favorites yet.'));
-                  }
+                  if (state.loading) return const Center(child: CircularProgressIndicator());
+                  if (state.error != null) return Center(child: Text(state.error!));
+                  if (state.pets.isEmpty) return const Center(child: Text('No favorites yet.'));
 
                   return RefreshIndicator(
-                    color: Colors.teal,
-                    onRefresh: () async {
-                      await context.read<FavoriteCubit>().loadFavorites(
-                        category: selectedCategory != 'All' ? selectedCategory : null,
-                        search: _searchController.text,
-                      );
-                    },
+                    onRefresh: () async => _loadFilteredFavorites(),
                     child: GridView.builder(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isTablet ? 24 : 12,
-                        vertical: isTablet ? 16 : 12,
-                      ),
+                      padding: const EdgeInsets.all(16),
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: crossAxisCount,
-                        mainAxisSpacing: 16,
                         crossAxisSpacing: 16,
-                        childAspectRatio: isTablet ? 4.5 : 3,
+                        mainAxisSpacing: 16,
+                        childAspectRatio: isTablet ? 1.4 : 0.95,
                       ),
                       itemCount: state.pets.length,
                       itemBuilder: (_, index) {
                         final pet = state.pets[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => PetDetailPage(petId: pet.id),
-                              ),
-                            );
-                          },
-                          child: Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 3,
-                            child: SizedBox(
-                              height: cardHeight,
-                              child: Row(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: const BorderRadius.horizontal(
-                                      left: Radius.circular(16),
+                        final imageTag = 'petImage_${pet.id}';
+
+                        return Hero(
+                          tag: imageTag,
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(24),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => PetDetailPage(petId: pet.id),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(24),
+                                  border: Border.all(
+                                    color: isDark ? Colors.tealAccent : Colors.teal.shade400,
+                                    width: 1.5,
+                                  ),
+                                  color: Theme.of(context).cardColor.withOpacity(0.92),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.07),
+                                      blurRadius: 10,
+                                      spreadRadius: 2,
+                                      offset: const Offset(0, 4),
                                     ),
-                                    child: Image.network(
-                                      getFullImageUrl(pet.imageUrl),
-                                      width: imageWidth,
-                                      height: double.infinity,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => Container(
-                                        width: imageWidth,
-                                        color: Colors.grey.shade300,
-                                        child: const Icon(Icons.error),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                                      child: Stack(
+                                        children: [
+                                          Image.network(
+                                            getFullImageUrl(pet.imageUrl),
+                                            height: isTablet ? 180 : 160,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) => Container(
+                                              height: 160,
+                                              color: Colors.grey[300],
+                                              child: const Icon(Icons.error),
+                                            ),
+                                          ),
+                                          Positioned.fill(
+                                            child: BackdropFilter(
+                                              filter: ImageFilter.blur(sigmaX: 0.5, sigmaY: 0.5),
+                                              child: Container(color: Colors.black12),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                    Padding(
+                                      padding: const EdgeInsets.all(12),
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             pet.name,
-                                            style: const TextStyle(
-                                              fontSize: 18,
+                                            style: TextStyle(
+                                              fontSize: 20,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.teal,
+                                              color: Colors.teal.shade800,
                                             ),
                                           ),
-                                          const SizedBox(height: 4),
-                                          Text("${pet.breed} • ${pet.age} yrs",
-                                              style: const TextStyle(fontSize: 14)),
-                                          const SizedBox(height: 4),
-                                          Text(pet.location,
-                                              style: const TextStyle(fontSize: 14)),
+                                          const SizedBox(height: 6),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.pets, size: 16, color: Colors.teal),
+                                              const SizedBox(width: 4),
+                                              Text("${pet.breed} • ${pet.age} yrs"),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.location_on, size: 16, color: Colors.redAccent),
+                                              const SizedBox(width: 4),
+                                              Expanded(
+                                                child: Text(pet.location, overflow: TextOverflow.ellipsis),
+                                              ),
+                                            ],
+                                          ),
+                                          Align(
+                                            alignment: Alignment.centerRight,
+                                            child: IconButton(
+                                              tooltip: 'Remove from favorites',
+                                              icon: const Icon(Icons.delete, color: Colors.red),
+                                              onPressed: () {
+                                                context.read<FavoriteCubit>().toggleFavorite(pet);
+                                              },
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    tooltip: 'Remove from favorites',
-                                    icon: const Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () {
-                                      context.read<FavoriteCubit>().toggleFavorite(pet);
-                                    },
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -247,5 +278,4 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     );
   }
 }
-
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:petforpat/app/theme/theme_cubit.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -74,14 +75,16 @@ void main() async {
             sl<DeleteNotificationUseCase>(),
           ),
         ),
-
         // Provide socket service after NotificationBloc is ready
         ChangeNotifierProxyProvider<NotificationBloc, NotificationSocketService>(
           create: (_) => NotificationSocketService(sl<NotificationBloc>()),
           update: (_, bloc, __) => NotificationSocketService(bloc),
         ),
       ],
-      child: const PetForPatApp(),
+      child: BlocProvider<ThemeCubit>( // 👈 ThemeCubit added here
+        create: (_) => ThemeCubit(),
+        child: const PetForPatApp(),
+      ),
     ),
   );
 }
@@ -96,29 +99,33 @@ class PetForPatApp extends StatelessWidget {
       Provider.of<NotificationSocketService>(context, listen: false).initSocket(); // userId is optional now
     });
 
-    return MaterialApp(
-      title: 'PetForPat',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.teal),
-      initialRoute: '/splash',
-      routes: {
-        '/splash': (context) => const SplashScreen(),
-        '/login': (context) => const LoginView(),
-        '/signup': (context) => const SignupView(),
-        '/dashboard home': (context) => const DashboardView(),
-        '/profile': (context) => const ProfileView(),
-        '/adoption': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-          return AdoptionScreen(
-            petId: args['petId'],
-            petName: args['petName'],
-            petType: args['petType'],
-          );
-        },
+    return BlocBuilder<ThemeCubit, ThemeData>( // 👈 Listen to ThemeCubit state
+      builder: (context, theme) {
+        return MaterialApp(
+          title: 'PetForPat',
+          debugShowCheckedModeBanner: false,
+          theme: theme, // 👈 Apply dynamic theme
+          initialRoute: '/splash',
+          routes: {
+            '/splash': (context) => const SplashScreen(),
+            '/login': (context) => const LoginView(),
+            '/signup': (context) => const SignupView(),
+            '/dashboard home': (context) => const DashboardView(),
+            '/profile': (context) => const ProfileView(),
+            '/adoption': (context) {
+              final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+              return AdoptionScreen(
+                petId: args['petId'],
+                petName: args['petName'],
+                petType: args['petType'],
+              );
+            },
+          },
+          onUnknownRoute: (_) => MaterialPageRoute(
+            builder: (_) => const SplashScreen(),
+          ),
+        );
       },
-      onUnknownRoute: (_) => MaterialPageRoute(
-        builder: (_) => const SplashScreen(),
-      ),
     );
   }
 }
