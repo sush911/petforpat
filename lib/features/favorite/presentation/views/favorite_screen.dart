@@ -43,7 +43,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   String getFullImageUrl(String imageUrl) {
     return imageUrl.startsWith('http')
         ? imageUrl
-        : 'http://192.168.10.70:3001$imageUrl';
+        : 'http://192.168.10.69:3001$imageUrl';
   }
 
   @override

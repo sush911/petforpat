@@ -48,7 +48,7 @@ Future<void> setupServiceLocator() async {
   // Dio HTTP client
   sl.registerLazySingleton(() => Dio(
     BaseOptions(
-      baseUrl: 'http://192.168.10.70:3001/api',
+      baseUrl: 'http://192.168.10.69:3001/api',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
       headers: {'Content-Type': 'application/json'},

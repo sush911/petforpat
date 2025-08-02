@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:petforpat/app/service_locator/service_locator.dart';
 import 'package:petforpat/features/adoption/presentation/views/adoption_screen.dart';
-import 'package:petforpat/features/dashboard/domain/entities/pet_entity.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/pet_bloc.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/pet_event.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/pet_state.dart';
@@ -25,7 +24,7 @@ class _PetDetailPageState extends State<PetDetailPage> {
     if (imageUrl.startsWith('http') || imageUrl.startsWith('https')) {
       return imageUrl;
     }
-    return 'http://192.168.10.70:3001$imageUrl';
+    return 'http://192.168.10.69:3001$imageUrl';
   }
 
   Widget _buildInfoTile({

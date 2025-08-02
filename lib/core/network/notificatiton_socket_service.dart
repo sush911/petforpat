@@ -15,7 +15,7 @@ class NotificationSocketService with ChangeNotifier {
 
   void initSocket([String? userId]) {
     _socket = IO.io(
-      'http://192.168.10.70:3001',
+      'http://192.168.10.69:3001',
       IO.OptionBuilder()
           .setTransports(['websocket'])
           .disableAutoConnect()

@@ -33,7 +33,7 @@ class _NotificationViewState extends State<NotificationView> {
 
     _notificationBloc.add(LoadNotifications(widget.userId ?? ''));
 
-    socket = IO.io('http://192.168.10.70:3001', {
+    socket = IO.io('http://192.168.10.69:3001', {
       'transports': ['websocket'],
       'autoConnect': true,
     });

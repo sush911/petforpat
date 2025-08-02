@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:petforpat/features/adoption/presentation/views/adoption_screen.dart';
 import 'package:petforpat/features/auth/presentation/views/profile_view.dart';
 import 'package:petforpat/features/favorite/presentation/views/favorite_screen.dart';
 import 'package:petforpat/features/notification/presentation/views/notification_view.dart';

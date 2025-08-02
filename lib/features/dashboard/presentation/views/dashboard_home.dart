@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:petforpat/app/service_locator/service_locator.dart';
 import 'package:petforpat/app/theme/theme_cubit.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/pet_bloc.dart';
 import 'package:petforpat/features/dashboard/presentation/view_models/pet_event.dart';
@@ -36,7 +35,7 @@ class _DashboardHomeState extends State<DashboardHome> {
 
   String getFullImageUrl(String imageUrl) {
     if (imageUrl.startsWith('http')) return imageUrl;
-    return 'http://192.168.10.70:3001$imageUrl';
+    return 'http://192.168.10.69:3001$imageUrl';
   }
 
   void _triggerSearch() {

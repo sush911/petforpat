@@ -67,9 +67,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   UserEntity _withFullImageUrl(UserEntity user) {
     if (user.profileImage != null && !user.profileImage!.startsWith('http')) {
-      const baseUrl = 'http://192.168.10.70:3001';
+      const baseUrl = 'http://192.168.10.69:3001';
       return user.copyWith(profileImage: '$baseUrl${user.profileImage}');
     }
     return user;
   }
 }
+
