@@ -25,7 +25,6 @@ class _SplashScreenState extends State<SplashScreen>
     _fadeIn = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
 
-    // ✅ Call navigation after build is fully complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _navigateAfterDelay();
     });
@@ -73,42 +72,47 @@ class _SplashScreenState extends State<SplashScreen>
         child: SafeArea(
           child: FadeTransition(
             opacity: _fadeIn,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxWidth: logoSize,
-                  ),
-                  child: Image.asset(
-                    'assets/logo/logopet.png',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'PetForPat',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    letterSpacing: 1.5,
-                    shadows: const [
-                      Shadow(
-                        blurRadius: 10,
-                        color: Colors.black45,
-                        offset: Offset(3, 3),
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: logoSize,
                       ),
-                    ],
-                  ),
+                      child: Image.asset(
+                        'assets/logo/logopet.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'PetForPat',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        letterSpacing: 1.5,
+                        shadows: const [
+                          Shadow(
+                            blurRadius: 10,
+                            color: Colors.black45,
+                            offset: Offset(3, 3),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    const CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 4,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 40),
-                const CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 4,
-                ),
-              ],
+              ),
             ),
           ),
         ),

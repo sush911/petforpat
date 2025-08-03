@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:petforpat/app/service_locator/service_locator.dart';
 import 'package:petforpat/features/notification/domain/usecases/delete_notification_usecase.dart';
 import 'package:petforpat/features/notification/domain/usecases/get_notification_usecase.dart';

@@ -1,23 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import '../../lib/features/auth/presentation/widgets/custom_divider.dart';
+import 'package:petforpat/features/auth/presentation/widgets/custom_divider.dart';
 
 void main() {
-  testWidgets('CustomDivider renders correctly with text', (WidgetTester tester) async {
-    // Build the widget
+  testWidgets('CustomDivider displays correctly with provided text', (WidgetTester tester) async {
+    const dividerText = 'OR';
+
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
-          body: CustomDivider(text: 'or'),
+          body: CustomDivider(text: dividerText),
         ),
       ),
     );
 
-    // Verify if the text is displayed
-    expect(find.text('or'), findsOneWidget);
+    // Verify the text is rendered
+    expect(find.text(dividerText), findsOneWidget);
 
-    // Verify if the Divider widgets are present
-    expect(find.byType(Divider), findsNWidgets(2)); // Two dividers (one on each side)
+    // Verify that two Dividers are present
+    expect(find.byType(Divider), findsNWidgets(2));
+
+    // Ensure layout is a Row
+    expect(find.byType(Row), findsOneWidget);
+  });
+
+  testWidgets('CustomDivider paddings and colors applied properly', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: CustomDivider(text: 'Test Text'),
+        ),
+      ),
+    );
+
+    final textWidget = tester.widget<Text>(find.text('Test Text'));
+    expect(textWidget.style?.color, equals(Colors.grey.shade600));
   });
 }

@@ -6,6 +6,8 @@ import 'package:petforpat/features/auth/presentation/view_models/auth_bloc.dart'
 import 'package:petforpat/features/auth/presentation/view_models/auth_event.dart';
 import 'package:petforpat/features/auth/presentation/view_models/auth_state.dart';
 import 'package:petforpat/features/dashboard/presentation/views/dashboard_view.dart';
+import 'package:petforpat/features/auth/presentation/widgets/custom_divider.dart';
+import 'package:petforpat/features/auth/presentation/widgets/social_button.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -36,8 +38,9 @@ class _LoginViewState extends State<LoginView> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
 
-    context.read<AuthBloc>().add(LoginRequested(username: username, password: password));
-
+    context
+        .read<AuthBloc>()
+        .add(LoginRequested(username: username, password: password));
   }
 
   @override
@@ -120,7 +123,29 @@ class _LoginViewState extends State<LoginView> {
                           const SizedBox(height: 12),
                           _buildSignUpOption(),
                           const SizedBox(height: 30),
-                          // Your social login buttons or divider can go here
+                          const CustomDivider(text: 'or continue with'),
+                          const SizedBox(height: 16),
+                          SocialButton(
+                            icon: Image.asset('assets/logo/g.png'),
+                            text: 'Continue with Google',
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Google login tapped')),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 12),
+                          SocialButton(
+                            icon: Image.asset('assets/logo/fb.png'),
+                            text: 'Continue with Facebook',
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Facebook login tapped')),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     );
@@ -166,7 +191,8 @@ class _LoginViewState extends State<LoginView> {
             icon: Icon(
               _passwordVisible ? Icons.visibility : Icons.visibility_off,
             ),
-            onPressed: () => setState(() => _passwordVisible = !_passwordVisible),
+            onPressed: () =>
+                setState(() => _passwordVisible = !_passwordVisible),
           ),
         ),
         validator: (value) =>
@@ -226,3 +252,4 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
+

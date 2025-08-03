@@ -81,7 +81,7 @@ void main() async {
           update: (_, bloc, __) => NotificationSocketService(bloc),
         ),
       ],
-      child: BlocProvider<ThemeCubit>( // 👈 ThemeCubit added here
+      child: BlocProvider<ThemeCubit>( //  ThemeCubit added here
         create: (_) => ThemeCubit(),
         child: const PetForPatApp(),
       ),
@@ -99,12 +99,12 @@ class PetForPatApp extends StatelessWidget {
       Provider.of<NotificationSocketService>(context, listen: false).initSocket(); // userId is optional now
     });
 
-    return BlocBuilder<ThemeCubit, ThemeData>( // 👈 Listen to ThemeCubit state
+    return BlocBuilder<ThemeCubit, ThemeData>( // Listen to ThemeCubit state
       builder: (context, theme) {
         return MaterialApp(
           title: 'PetForPat',
           debugShowCheckedModeBanner: false,
-          theme: theme, // 👈 Apply dynamic theme
+          theme: theme, //  Apply dynamic theme
           initialRoute: '/splash',
           routes: {
             '/splash': (context) => const SplashScreen(),
@@ -129,3 +129,4 @@ class PetForPatApp extends StatelessWidget {
     );
   }
 }
+

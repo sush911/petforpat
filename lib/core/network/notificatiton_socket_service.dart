@@ -8,6 +8,7 @@ class NotificationSocketService with ChangeNotifier {
   IO.Socket? _socket;
   final List<NotificationModel> _liveNotifications = [];
   final NotificationBloc notificationBloc;
+  bool _isDisposed = false; // Track disposal state
 
   List<NotificationModel> get liveNotifications => _liveNotifications;
 
@@ -26,14 +27,14 @@ class NotificationSocketService with ChangeNotifier {
 
     _socket!.onConnect((_) {
       print('🔌 Socket connected');
-
-      // Only join if userId is provided
       if (userId != null && userId.isNotEmpty) {
         _socket!.emit('join', userId);
       }
     });
 
     _socket!.on('new-notification', (data) {
+      if (_isDisposed) return; // Don't act if disposed
+
       print('📩 New Notification: $data');
 
       final notification = NotificationModel(
@@ -47,7 +48,12 @@ class NotificationSocketService with ChangeNotifier {
       );
 
       _liveNotifications.insert(0, notification);
-      notifyListeners();
+
+      try {
+        notifyListeners(); // Safe because of _isDisposed guard
+      } catch (e) {
+        print('⚠️ Tried to notifyListeners after dispose: $e');
+      }
 
       notificationBloc.add(NewNotificationReceived(notification));
     });
@@ -56,8 +62,22 @@ class NotificationSocketService with ChangeNotifier {
   }
 
   void disposeSocket() {
+    _isDisposed = true;
+
+    // Remove socket event listeners
+    _socket?.off('new-notification');
+    _socket?.off('connect');
+    _socket?.off('disconnect');
+
+    // Clean up socket
     _socket?.disconnect();
     _socket?.dispose();
+    _socket = null;
+  }
+
+  @override
+  void dispose() {
+    disposeSocket(); // Ensure clean shutdown
+    super.dispose();
   }
 }
-

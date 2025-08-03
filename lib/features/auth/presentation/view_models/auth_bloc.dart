@@ -56,9 +56,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     });
 
     on<LogoutEvent>((event, emit) async {
-      // ✅ Clear auth_token from shared preferences
+      //  Clear auth_token from shared preferences
 
-      // 🧼 Optional: Clear token from Dio headers
+      //  Optional: Clear token from Dio headers
       await authRepository.clearToken();
 
       emit(AuthInitial());
@@ -73,4 +73,3 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     return user;
   }
 }
-
